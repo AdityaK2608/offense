@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  const SUBJECT = "Offense Summary Report";
+
   function clean(value) {
     return value == null ? "" : String(value).trim();
   }
@@ -36,21 +38,41 @@
     );
   }
 
-  function openOutlook() {
-    const button = document.getElementById("outlookBtn");
-    if (!button) return;
+  function openDesktopOutlook() {
+    const body = buildOutlookBody();
+    if (!body) return;
 
-    const table = getSummaryTable();
-    if (!table || !table.querySelector("tbody tr")) return;
+    // Windows/desktop Outlook protocol. This asks Windows to open
+    // the registered Outlook desktop application instead of the browser.
+    const outlookUrl =
+      "ms-outlook:compose?subject=" +
+      encodeURIComponent(SUBJECT) +
+      "&body=" +
+      encodeURIComponent(body);
+
+    window.location.href = outlookUrl;
+  }
+
+  function openOutlookWeb() {
+    const body = buildOutlookBody();
+    if (!body) return;
 
     const url = new URL("https://outlook.office.com/mail/deeplink/compose");
-    url.searchParams.set("subject", "Offense Summary Report");
-    url.searchParams.set("body", buildOutlookBody());
+    url.searchParams.set("subject", SUBJECT);
+    url.searchParams.set("body", body);
 
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 
+  function openOutlook() {
+    const table = getSummaryTable();
+    if (!table || !table.querySelector("tbody tr")) return;
+
+    openDesktopOutlook();
+  }
+
   const outlookButton = document.getElementById("outlookBtn");
+
   if (outlookButton) {
     outlookButton.addEventListener("click", openOutlook);
   }
