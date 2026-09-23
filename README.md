@@ -15,3 +15,10 @@ Simple browser-based Excel processor for NABFID offense reports.
 - Organization: if Subject contains `KPMG` (case-insensitive), use `KPMG Assurance and Consulting Services LLP`; otherwise use `Edgeverve Systems Limited- NaBFID`.
 
 The app uses SheetJS in the browser, so the file is processed client-side.
+
+
+## Project structure
+
+- `index.html` — page structure and UI markup
+- `src/logic/app.js` — Excel processing, classification, organization, summary, preview/edit, and download logic
+- `src/styles/app.css` — custom application styling
