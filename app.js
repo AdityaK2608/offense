@@ -536,10 +536,17 @@
     URL.revokeObjectURL(url);
   }
 
-  els.browseBtn.addEventListener("click", () => els.fileInput.click());
+  // Keep the browse button and dropzone click handlers separate so the
+  // button does not bubble and trigger the file picker twice.
+  els.browseBtn.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    els.fileInput.click();
+  });
 
   els.dropzone.addEventListener("click", event => {
-    if (event.target !== els.browseBtn) els.fileInput.click();
+    if (event.target.closest("#browseBtn")) return;
+    els.fileInput.click();
   });
 
   els.fileInput.addEventListener("change", event => {
