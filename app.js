@@ -437,28 +437,54 @@
     const table = document.querySelector("#summaryHead").closest("table");
     if (!table) return;
 
-    const rows = Array.from(table.querySelectorAll("tr")).map(row =>
+    const htmlTable = table.cloneNode(true);
+    htmlTable.style.borderCollapse = "collapse";
+    htmlTable.querySelectorAll("th, td").forEach(cell => {
+      cell.style.border = "1px solid #d9dee8";
+      cell.style.padding = "8px 12px";
+      cell.style.fontFamily = "Inter 18pt, Inter, Arial, sans-serif";
+      cell.style.fontSize = "10pt";
+      cell.style.whiteSpace = "nowrap";
+    });
+
+    const plainRows = Array.from(table.querySelectorAll("tr")).map(row =>
       Array.from(row.querySelectorAll("th, td")).map(cell => clean(cell.textContent)).join("\t")
     );
 
+    const html = htmlTable.outerHTML;
+    const text = plainRows.join("\n");
+
     try {
-      await navigator.clipboard.writeText(rows.join("\n"));
+      if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/html": new Blob([html], { type: "text/html" }),
+            "text/plain": new Blob([text], { type: "text/plain" })
+          })
+        ]);
+      } else {
+        const container = document.createElement("div");
+        container.innerHTML = html;
+        container.style.position = "fixed";
+        container.style.left = "-9999px";
+        document.body.appendChild(container);
+
+        const range = document.createRange();
+        range.selectNodeContents(container);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        document.execCommand("copy");
+        selection.removeAllRanges();
+        container.remove();
+      }
+
       const original = els.copyTableBtn.textContent;
       els.copyTableBtn.textContent = "Copied ✓";
       setTimeout(() => { els.copyTableBtn.textContent = original; }, 1600);
     } catch (error) {
-      const text = rows.join("\n");
-      const textarea = document.createElement("textarea");
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      textarea.remove();
-      const original = els.copyTableBtn.textContent;
-      els.copyTableBtn.textContent = "Copied ✓";
-      setTimeout(() => { els.copyTableBtn.textContent = original; }, 1600);
+      console.error("Table copy failed:", error);
+      alert("Unable to copy the table. Please try again.");
     }
   }
 
