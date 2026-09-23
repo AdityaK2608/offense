@@ -38,37 +38,40 @@
     );
   }
 
-  function openDesktopOutlook() {
-    const body = buildOutlookBody();
-    if (!body) return;
+  function openOutlook() {
+    const table = getSummaryTable();
+    if (!table || !table.querySelector("tbody tr")) return;
 
-    // Windows/desktop Outlook protocol. This asks Windows to open
-    // the registered Outlook desktop application instead of the browser.
+    const body = buildOutlookBody();
+
+    // Try the desktop Outlook protocol without navigating the current page.
     const outlookUrl =
       "ms-outlook:compose?subject=" +
       encodeURIComponent(SUBJECT) +
       "&body=" +
       encodeURIComponent(body);
 
-    window.location.href = outlookUrl;
-  }
+    const link = document.createElement("a");
+    link.href = outlookUrl;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-  function openOutlookWeb() {
-    const body = buildOutlookBody();
-    if (!body) return;
+    // Give Windows a moment to handle the protocol. If it does not,
+    // offer the Outlook web compose as a fallback instead of silently doing nothing.
+    window.setTimeout(function () {
+      const fallback = window.confirm(
+        "Desktop Outlook could not be opened automatically.\n\nOpen Outlook on the web instead?"
+      );
 
-    const url = new URL("https://outlook.office.com/mail/deeplink/compose");
-    url.searchParams.set("subject", SUBJECT);
-    url.searchParams.set("body", body);
-
-    window.open(url.toString(), "_blank", "noopener,noreferrer");
-  }
-
-  function openOutlook() {
-    const table = getSummaryTable();
-    if (!table || !table.querySelector("tbody tr")) return;
-
-    openDesktopOutlook();
+      if (fallback) {
+        const webUrl = new URL("https://outlook.office.com/mail/deeplink/compose");
+        webUrl.searchParams.set("subject", SUBJECT);
+        webUrl.searchParams.set("body", body);
+        window.open(webUrl.toString(), "_blank", "noopener,noreferrer");
+      }
+    }, 1200);
   }
 
   const outlookButton = document.getElementById("outlookBtn");
