@@ -5,6 +5,7 @@
   };
   let processedRows = [];
   let sourceFileName = "";
+  const EXCEL_FONT = "Inter 18pt";
 
   const els = {
     fileInput: document.getElementById("fileInput"),
@@ -293,7 +294,7 @@
         const address = XLSX.utils.encode_cell({ r: row, c: col });
         if (!offenseSheet[address]) continue;
         offenseSheet[address].s = {
-          font: { name: "Inter 18pt", sz: 10 },
+          font: { name: EXCEL_FONT, sz: 10, family: 2 },
           alignment: { vertical: "center", wrapText: false }
         };
       }
@@ -362,7 +363,7 @@
 
     // Dark-blue header and grand-total row, matching the reference report.
     const headerStyle = {
-      font: { name: "Inter 18pt", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
+      font: { name: EXCEL_FONT, sz: 10, family: 2, bold: true, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "0B2A5B" } },
       alignment: { horizontal: "center", vertical: "center", wrapText: false },
       border: {
