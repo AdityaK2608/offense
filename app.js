@@ -536,15 +536,11 @@
     URL.revokeObjectURL(url);
   }
 
-  // The Browse files control is a native label linked to the hidden
-  // file input, so it does not depend on JavaScript to open the picker.
-  els.dropzone.addEventListener("click", event => {
-    if (event.target.closest("#browseBtn") || event.target.closest("#fileInput")) return;
-    els.fileInput.click();
-  });
-
+  // Browse files uses the native label -> file input relationship.
+  // Keep the file input as the single source of truth for processing.
   els.fileInput.addEventListener("change", event => {
-    handleFile(event.target.files[0]);
+    const file = event.target.files && event.target.files[0];
+    if (file) handleFile(file);
   });
 
   ["dragenter", "dragover"].forEach(eventName => {
