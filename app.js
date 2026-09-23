@@ -459,7 +459,7 @@
         '</font></td>';
     };
 
-    let html = '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
+    let html = '<table border="1" bordercolor="#D9DEE8" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;border:1px solid #D9DEE8;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
 
     html += '<thead><tr>';
     rows[0].querySelectorAll("th,td").forEach(cell => {
