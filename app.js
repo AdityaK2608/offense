@@ -453,13 +453,13 @@
       const color = isHeader || isTotal ? white : textColor;
       const weight = isHeader || isTotal ? "700" : "400";
 
-      return '<td bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;padding:8px 12px !important;line-height:1.25 !important;text-align:center !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
+      return '<td align="center" valign="middle" bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;padding:8px 12px !important;line-height:1.25 !important;text-align:center !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
         '<font face="' + font + '" color="' + color + '" size="2" style="font-family:"' + font + '",Inter,Arial,sans-serif;color:' + color + ';font-size:10pt;font-weight:' + weight + ';">' +
         clean(cell.textContent) +
         '</font></td>';
     };
 
-    let html = '<table border="1" bordercolor="#D9DEE8" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;border:1px solid #D9DEE8;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
+    let html = '<table border="1" bordercolor="#D9DEE8" cellpadding="0" cellspacing="0" align="center" style="border-collapse:collapse;border-spacing:0;border:1px solid #D9DEE8;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;text-align:center;">';
 
     html += '<thead><tr>';
     rows[0].querySelectorAll("th,td").forEach(cell => {
