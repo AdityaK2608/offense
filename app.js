@@ -16,6 +16,7 @@
     previewBtn: document.getElementById("previewBtn"),
     editBtn: document.getElementById("editBtn"),
     downloadBtn: document.getElementById("downloadBtn"),
+    copyTableBtn: document.getElementById("copyTableBtn"),
     dataPanel: document.getElementById("dataPanel"),
     dataTitle: document.getElementById("dataTitle"),
     dataSubtitle: document.getElementById("dataSubtitle"),
@@ -432,6 +433,36 @@
     handleFile(event.dataTransfer.files[0]);
   });
 
+  async function copySummaryTable(){
+    const table = document.querySelector("#summaryHead").closest("table");
+    if (!table) return;
+
+    const rows = Array.from(table.querySelectorAll("tr")).map(row =>
+      Array.from(row.querySelectorAll("th, td")).map(cell => clean(cell.textContent)).join("\t")
+    );
+
+    try {
+      await navigator.clipboard.writeText(rows.join("\n"));
+      const original = els.copyTableBtn.textContent;
+      els.copyTableBtn.textContent = "Copied ✓";
+      setTimeout(() => { els.copyTableBtn.textContent = original; }, 1600);
+    } catch (error) {
+      const text = rows.join("\n");
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+      const original = els.copyTableBtn.textContent;
+      els.copyTableBtn.textContent = "Copied ✓";
+      setTimeout(() => { els.copyTableBtn.textContent = original; }, 1600);
+    }
+  }
+
+  els.copyTableBtn.addEventListener("click", copySummaryTable);
   els.previewBtn.addEventListener("click", () => renderData(false));
   els.editBtn.addEventListener("click", () => renderData(true));
 
