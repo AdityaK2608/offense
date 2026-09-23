@@ -522,8 +522,17 @@
   }
   els.copyTableBtn.addEventListener("click", copySummaryTable);
   els.outlookBtn.addEventListener("click", openOutlook);
-  els.previewBtn.addEventListener("click", () => renderData(false));
-  els.editBtn.addEventListener("click", () => renderData(true));
+  els.previewBtn.addEventListener("click", () => {
+    if (!processedRows.length) return;
+    renderData(false);
+    els.dataPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  els.editBtn.addEventListener("click", () => {
+    if (!processedRows.length) return;
+    renderData(true);
+    els.dataPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
 
   els.saveBtn.addEventListener("click", () => {
     renderSummary();
