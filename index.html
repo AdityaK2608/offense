@@ -28,7 +28,7 @@
       <div class="hero-copy">
         <div class="badge">EXCEL WORKFLOW <span>V1</span></div>
         <h2>Turn raw offense data into a <em>clean report.</em></h2>
-        <p>Upload your workbook, apply the configured classification rules, review the results, and export a polished Excel report.</p>
+        <p>Upload your workbook, process the data, review the results, and export a polished Excel report.</p>
       </div>
 
       <div id="dropzone" class="dropzone">
@@ -82,14 +82,6 @@
           <div class="actions"><button id="saveBtn" type="button" class="primary-btn hidden">Save edits</button><button id="closePanelBtn" type="button" class="secondary-btn">Close</button></div>
         </div>
         <div class="data-scroll"><table><thead id="dataHead"></thead><tbody id="dataBody"></tbody></table></div>
-      </div>
-
-      <div class="rules-panel">
-        <div><div class="eyebrow">AUTOMATION RULES</div><h2>Configured processing logic</h2></div>
-        <div class="rule-grid">
-          <div><span>01</span><h3>Classification</h3><p>Extract the value after <code>Domain:</code> and before <code>|</code>. Empty values become <strong>NABFID DC</strong>.</p></div>
-          <div><span>02</span><h3>Organization</h3><p>Subjects containing <strong>KPMG</strong> map to KPMG Assurance and Consulting Services LLP; all others map to Edgeverve Systems Limited- NaBFID.</p></div>
-        </div>
       </div>
     </section>
 
