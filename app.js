@@ -536,16 +536,10 @@
     URL.revokeObjectURL(url);
   }
 
-  // Keep the browse button and dropzone click handlers separate so the
-  // button does not bubble and trigger the file picker twice.
-  els.browseBtn.addEventListener("click", event => {
-    event.preventDefault();
-    event.stopPropagation();
-    els.fileInput.click();
-  });
-
+  // The Browse files control is a native label linked to the hidden
+  // file input, so it does not depend on JavaScript to open the picker.
   els.dropzone.addEventListener("click", event => {
-    if (event.target.closest("#browseBtn")) return;
+    if (event.target.closest("#browseBtn") || event.target.closest("#fileInput")) return;
     els.fileInput.click();
   });
 
