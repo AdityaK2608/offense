@@ -397,7 +397,7 @@
     const url = URL.createObjectURL(blob);
 
     link.href = url;
-    link.download = "NABFID Offenses.xlsx";
+    link.download = "Processed Offenses.xlsx";
     link.click();
 
     URL.revokeObjectURL(url);
