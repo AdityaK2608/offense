@@ -521,7 +521,6 @@
     }
   }
   els.copyTableBtn.addEventListener("click", copySummaryTable);
-  els.outlookBtn.addEventListener("click", openOutlook);
   function showDataPanel(editable) {
     if (!processedRows.length) {
       alert("Please upload and process an Excel file first.");
