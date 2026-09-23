@@ -314,7 +314,6 @@
 
     const alternateStyle = {
       font: { name: EXCEL_FONT, sz: 10, family: 2, color: { rgb: "374151" } },
-      fill: { fgColor: { rgb: "F8FAFC" } },
       alignment: { vertical: "center", wrapText: false },
       border: {
         top: { style: "thin", color: { rgb: "202020" } },
@@ -373,7 +372,7 @@
         if (row === 0) {
           cell.s = headerStyle;
         } else {
-          cell.s = row % 2 === 0 ? alternateStyle : bodyStyle;
+          cell.s = bodyStyle;
         }
       }
     }
@@ -467,7 +466,6 @@
               vertical: "center",
               wrapText: false
             },
-            fill: { fgColor: { rgb: row % 2 === 0 ? "F8FAFC" : "FFFFFF" } },
             border: {
               top: { style: "thin", color: { rgb: "202020" } },
               bottom: { style: "thin", color: { rgb: "202020" } },
