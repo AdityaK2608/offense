@@ -16,7 +16,6 @@
     editBtn: document.getElementById("editBtn"),
     downloadBtn: document.getElementById("downloadBtn"),
     copyTableBtn: document.getElementById("copyTableBtn"),
-    outlookBtn: document.getElementById("outlookBtn"),
     dataPanel: document.getElementById("dataPanel"),
     dataTitle: document.getElementById("dataTitle"),
     dataSubtitle: document.getElementById("dataSubtitle"),
