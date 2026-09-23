@@ -4,7 +4,6 @@
     default: "Edgeverve Systems Limited- NaBFID"
   };
   let processedRows = [];
-  let sourceFileName = "";
   const EXCEL_FONT = "Inter 18pt";
 
   const els = {
@@ -249,7 +248,6 @@
       return;
     }
 
-    sourceFileName = file.name;
     els.fileName.textContent = "Selected: " + file.name;
 
     try {
