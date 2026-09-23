@@ -284,6 +284,22 @@
 
     const offenseSheet = XLSX.utils.json_to_sheet(processedRows);
     offenseSheet["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+    // Output Excel configuration:
+    // Font: Inter | Size: 10 pt | Wrap text: Off
+    const offenseRange = XLSX.utils.decode_range(offenseSheet["!ref"]);
+    for (let row = offenseRange.s.r; row <= offenseRange.e.r; row++) {
+      for (let col = offenseRange.s.c; col <= offenseRange.e.c; col++) {
+        const address = XLSX.utils.encode_cell({ r: row, c: col });
+        if (!offenseSheet[address]) continue;
+        offenseSheet[address].s = {
+          font: { name: "Inter", sz: 10 },
+          alignment: { vertical: "center", wrapText: false }
+        };
+      }
+    }
+
+    // Keep the same font/size and no-wrap behavior on the summary sheet.
     XLSX.utils.book_append_sheet(workbook, offenseSheet, "Offenses");
 
     const map = summarize(processedRows);
@@ -331,6 +347,40 @@
       { wch: 24 },
       { wch: 14 }
     ];
+
+    const summaryRange = XLSX.utils.decode_range(summarySheet["!ref"]);
+    for (let row = summaryRange.s.r; row <= summaryRange.e.r; row++) {
+      for (let col = summaryRange.s.c; col <= summaryRange.e.c; col++) {
+        const address = XLSX.utils.encode_cell({ r: row, c: col });
+        if (!summarySheet[address]) continue;
+        summarySheet[address].s = {
+          font: { name: "Inter", sz: 10 },
+          alignment: { vertical: "center", wrapText: false }
+        };
+      }
+    }
+
+    // Dark-blue header and grand-total row, matching the reference report.
+    const headerStyle = {
+      font: { name: "Inter", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "0B2A5B" } },
+      alignment: { horizontal: "center", vertical: "center", wrapText: false },
+      border: {
+        top: { style: "thin", color: { rgb: "D9E1F2" } },
+        bottom: { style: "thin", color: { rgb: "D9E1F2" } },
+        left: { style: "thin", color: { rgb: "D9E1F2" } },
+        right: { style: "thin", color: { rgb: "D9E1F2" } }
+      }
+    };
+    const totalStyle = {
+      font: { name: "Inter", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "0B2A5B" } },
+      alignment: { vertical: "center", wrapText: false }
+    };
+    for (let col = summaryRange.s.c; col <= summaryRange.e.c; col++) {
+      summarySheet[XLSX.utils.encode_cell({ r: 0, c: col })].s = headerStyle;
+      summarySheet[XLSX.utils.encode_cell({ r: summaryRange.e.r, c: col })].s = totalStyle;
+    }
 
     XLSX.utils.book_append_sheet(workbook, summarySheet, "Classification");
 
