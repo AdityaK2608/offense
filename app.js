@@ -303,6 +303,7 @@
 
     const bodyStyle = {
       font: { name: EXCEL_FONT, sz: 10, family: 2, color: { rgb: "374151" } },
+      fill: { fgColor: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", wrapText: false },
       border: {
         top: { style: "thin", color: { rgb: "202020" } },
@@ -314,6 +315,7 @@
 
     const alternateStyle = {
       font: { name: EXCEL_FONT, sz: 10, family: 2, color: { rgb: "374151" } },
+      fill: { fgColor: { rgb: "FFFFFF" } },
       alignment: { vertical: "center", wrapText: false },
       border: {
         top: { style: "thin", color: { rgb: "202020" } },
@@ -461,6 +463,7 @@
         } else {
           cell.s = {
             ...bodyStyle,
+            fill: { fgColor: { rgb: "FFFFFF" } },
             alignment: {
               horizontal: col === 0 ? "left" : "center",
               vertical: "center",
