@@ -254,14 +254,14 @@
 
     try {
       const buffer = await file.arrayBuffer();
-      const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+      const workbook = XLSX.read(buffer, { type: "array", cellDates: false, cellNF: true, cellText: true });
 
       if (!workbook.SheetNames.length) {
         throw new Error("No sheets found in workbook.");
       }
 
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+      const rawRows = XLSX.utils.sheet_to_json(worksheet, { defval: "", raw: false });
 
       processedRows = processSheet(rawRows);
       renderSummary();
