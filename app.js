@@ -522,17 +522,26 @@
   }
   els.copyTableBtn.addEventListener("click", copySummaryTable);
   els.outlookBtn.addEventListener("click", openOutlook);
-  els.previewBtn.addEventListener("click", () => {
-    if (!processedRows.length) return;
-    renderData(false);
-    els.dataPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
+  function showDataPanel(editable) {
+    if (!processedRows.length) {
+      alert("Please upload and process an Excel file first.");
+      return;
+    }
 
-  els.editBtn.addEventListener("click", () => {
-    if (!processedRows.length) return;
-    renderData(true);
-    els.dataPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
+    renderData(editable);
+    els.dataPanel.classList.remove("hidden");
+    requestAnimationFrame(() => {
+      els.dataPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  els.previewBtn.onclick = function () {
+    showDataPanel(false);
+  };
+
+  els.editBtn.onclick = function () {
+    showDataPanel(true);
+  };
 
   els.saveBtn.addEventListener("click", () => {
     renderSummary();
