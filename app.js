@@ -453,14 +453,14 @@
       const color = isHeader || isTotal ? white : textColor;
       const weight = isHeader || isTotal ? "700" : "400";
 
-      return '<td valign="middle" bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;padding:8px 12px !important;line-height:1.25 !important;text-align:center !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
+      return '<td valign="middle" bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;border-top:1px solid ' + border + ' !important;border-right:1px solid ' + border + ' !important;border-bottom:1px solid ' + border + ' !important;border-left:1px solid ' + border + ' !important;mso-border-alt:solid ' + border + ' 1px !important;padding:8px 12px !important;line-height:1.25 !important;text-align:center !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
         '<div align="center" style="text-align:center !important;width:100%;">' +
         '<font face="' + font + '" color="' + color + '" size="2" style="font-family:"' + font + '",Inter,Arial,sans-serif;color:' + color + ';font-size:10pt;font-weight:' + weight + ';text-align:center;">' +
         clean(cell.textContent) +
         '</font></div></td>';
     };
 
-    let html = '<table border="1" bordercolor="#202020" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;border:1px solid #202020;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
+    let html = '<table border="1" bordercolor="#202020" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;border:1px solid #202020;mso-table-lspace:0pt;mso-table-rspace:0pt;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
 
     html += '<thead><tr>';
     rows[0].querySelectorAll("th,td").forEach(cell => {
