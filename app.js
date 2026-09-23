@@ -494,8 +494,43 @@
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
 
+    function formatFileDate(value){
+      const text = clean(value);
+      if (!text) return "";
+
+      // Prefer the date portion from the Created on value.
+      const match = text.match(/(\\d{1,4})[\\/\\-.](\\d{1,2})[\\/\\-.](\\d{1,4})/);
+      if (!match) return "";
+
+      let first = Number(match[1]);
+      let second = Number(match[2]);
+      let third = Number(match[3]);
+      let day, month, year;
+
+      if (first >= 1000) {
+        year = first;
+        month = second;
+        day = third;
+      } else if (third >= 1000) {
+        day = first;
+        month = second;
+        year = third;
+      } else {
+        return "";
+      }
+
+      if (day < 1 || day > 31 || month < 1 || month > 12) return "";
+
+      return String(day).padStart(2, "0") +
+        String(month).padStart(2, "0") +
+        String(year).slice(-4);
+    }
+
+    const createdDate = formatFileDate(processedRows[0]["Created on"]);
     link.href = url;
-    link.download = "Processed Offenses.xlsx";
+    link.download = createdDate
+      ? "NABFID Offenses - " + createdDate + ".xlsx"
+      : "NABFID Offenses.xlsx";
     link.click();
 
     URL.revokeObjectURL(url);
