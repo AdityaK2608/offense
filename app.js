@@ -443,7 +443,7 @@
 
     const border = "#D9DEE8";
     const headerBg = "#0B2A5B";
-    const totalBg = "#2457B8";
+    const totalBg = "#0B2A5B";
     const textColor = "#1F2937";
     const white = "#FFFFFF";
     const font = "Inter 18pt";
@@ -453,7 +453,7 @@
       const color = isHeader || isTotal ? white : textColor;
       const weight = isHeader || isTotal ? "700" : "400";
 
-      return '<td bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;padding:8px 12px !important;line-height:1.25 !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
+      return '<td bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;padding:8px 12px !important;line-height:1.25 !important;text-align:center !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
         '<font face="' + font + '" color="' + color + '" size="2" style="font-family:"' + font + '",Inter,Arial,sans-serif;color:' + color + ';font-size:10pt;font-weight:' + weight + ';">' +
         clean(cell.textContent) +
         '</font></td>';
