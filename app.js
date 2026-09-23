@@ -16,6 +16,7 @@
     editBtn: document.getElementById("editBtn"),
     downloadBtn: document.getElementById("downloadBtn"),
     copyTableBtn: document.getElementById("copyTableBtn"),
+    outlookBtn: document.getElementById("outlookBtn"),
     dataPanel: document.getElementById("dataPanel"),
     dataTitle: document.getElementById("dataTitle"),
     dataSubtitle: document.getElementById("dataSubtitle"),
@@ -520,7 +521,41 @@
       alert("Unable to copy the table. Please try again.");
     }
   }
+  function buildOutlookBody(){
+    const table = document.querySelector("#summaryHead").closest("table");
+    if (!table) return "";
+
+    const rows = Array.from(table.querySelectorAll("tr")).map(row =>
+      Array.from(row.querySelectorAll("th, td")).map(cell => clean(cell.textContent))
+    );
+
+    const widths = rows[0].map((_, colIndex) =>
+      Math.max(...rows.map(row => (row[colIndex] || "").length))
+    );
+
+    const tableText = rows.map(row =>
+      row.map((value, index) => String(value).padEnd(widths[index])).join("   ")
+    ).join("\r\n");
+
+    return "Hi Team,\r\n\r\nPlease find below the processed offense summary:\r\n\r\n" +
+      tableText +
+      "\r\n\r\nRegards,";
+  }
+
+  function openOutlook(){
+    if (!processedRows.length) return;
+
+    const subject = "Offense Summary Report";
+    const body = buildOutlookBody();
+    const url = new URL("https://outlook.office.com/mail/deeplink/compose");
+    url.searchParams.set("subject", subject);
+    url.searchParams.set("body", body);
+
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
+  }
+
   els.copyTableBtn.addEventListener("click", copySummaryTable);
+  els.outlookBtn.addEventListener("click", openOutlook);
   els.previewBtn.addEventListener("click", () => renderData(false));
   els.editBtn.addEventListener("click", () => renderData(true));
 
