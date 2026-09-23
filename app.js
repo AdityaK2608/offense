@@ -368,10 +368,10 @@
       fill: { fgColor: { rgb: "0B2A5B" } },
       alignment: { horizontal: "center", vertical: "center", wrapText: false },
       border: {
-        top: { style: "thin", color: { rgb: "D9E1F2" } },
-        bottom: { style: "thin", color: { rgb: "D9E1F2" } },
-        left: { style: "thin", color: { rgb: "D9E1F2" } },
-        right: { style: "thin", color: { rgb: "D9E1F2" } }
+        top: { style: "thin", color: { rgb: "202020" } },
+        bottom: { style: "thin", color: { rgb: "202020" } },
+        left: { style: "thin", color: { rgb: "202020" } },
+        right: { style: "thin", color: { rgb: "202020" } }
       }
     };
     const totalStyle = {
@@ -441,7 +441,7 @@
     const bodyRows = rows.slice(1, -1);
     const totalRow = rows[rows.length - 1];
 
-    const border = "#D9DEE8";
+    const border = "#202020";
     const headerBg = "#0B2A5B";
     const totalBg = "#0B2A5B";
     const textColor = "#1F2937";
@@ -460,7 +460,7 @@
         '</font></div></td>';
     };
 
-    let html = '<table border="1" bordercolor="#D9DEE8" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;border:1px solid #D9DEE8;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
+    let html = '<table border="1" bordercolor="#202020" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;border:1px solid #202020;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
 
     html += '<thead><tr>';
     rows[0].querySelectorAll("th,td").forEach(cell => {
