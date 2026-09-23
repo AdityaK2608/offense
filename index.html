@@ -8,91 +8,93 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
   <link rel="stylesheet" href="app.css">
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900">
-  <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mb-8 flex flex-col gap-2">
-      <div class="flex items-center gap-3">
-        <div class="grid h-10 w-10 place-items-center rounded-xl bg-slate-900 text-white font-bold">N</div>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
         <div>
-          <h1 class="text-2xl font-semibold tracking-tight">NABFID Offense Processor</h1>
-          <p class="text-sm text-slate-500">Upload Excel → process → review → edit → download</p>
+          <div class="eyebrow">NABFID • OPERATIONS</div>
+          <h1>Offense Processor</h1>
         </div>
       </div>
-    </div>
+      <div class="privacy-pill"><span></span> Processed locally in your browser</div>
+    </header>
 
-    <section id="uploadCard" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <div id="dropzone" class="cursor-pointer rounded-2xl border-2 border-dashed border-slate-300 p-10 text-center transition">
-        <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-2xl">📄</div>
-        <h2 class="text-lg font-semibold">Drop your Excel file here</h2>
-        <p class="mt-1 text-sm text-slate-500">or browse for a .xlsx / .xls file</p>
-        <button id="browseBtn" type="button" class="mt-5 rounded-xl bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">Browse File</button>
+    <section id="uploadCard" class="hero-card">
+      <div class="hero-copy">
+        <div class="badge">EXCEL WORKFLOW <span>V1</span></div>
+        <h2>Turn raw offense data into a <em>clean report.</em></h2>
+        <p>Upload your workbook, apply the configured classification rules, review the results, and export a polished Excel report.</p>
+      </div>
+
+      <div id="dropzone" class="dropzone">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v2.25A2.25 2.25 0 0 0 7.25 20h9.5A2.25 2.25 0 0 0 19 17.75V15.5"/></svg>
+        </div>
+        <h3>Drop your Excel workbook here</h3>
+        <p>Supports <strong>.xlsx</strong> and <strong>.xls</strong> files</p>
+        <button id="browseBtn" type="button" class="primary-btn">Browse files <span>↗</span></button>
         <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden">
-        <p id="fileName" class="mt-4 text-sm text-slate-500"></p>
+        <div id="fileName" class="file-name">No file selected</div>
       </div>
-      <div class="mt-6 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
-        <span class="font-medium text-slate-800">Rules:</span>
-        Classification is taken from <code>Domain:</code> in Subject; empty Domain → <strong>NABFID DC</strong>.
-        Organization is KPMG when Subject contains <strong>KPMG</strong>; otherwise <strong>Edgeverve Systems Limited- NaBFID</strong>.
+
+      <div class="rule-strip">
+        <div class="rule-icon">✦</div>
+        <div><strong>Smart processing enabled</strong><span>Classification and organization are generated automatically from the Subject field.</span></div>
       </div>
     </section>
 
-    <section id="resultSection" class="mt-8 hidden">
-      <div class="mb-5 grid gap-4 sm:grid-cols-4">
-        <div class="rounded-2xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">Records</div><div id="statRecords" class="mt-1 text-2xl font-semibold">0</div></div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">Clients</div><div id="statClients" class="mt-1 text-2xl font-semibold">0</div></div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">Closed</div><div id="statClosed" class="mt-1 text-2xl font-semibold">0</div></div>
-        <div class="rounded-2xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">Pending</div><div id="statPending" class="mt-1 text-2xl font-semibold">0</div></div>
+    <section id="resultSection" class="hidden results">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">PROCESSING COMPLETE</div>
+          <h2>Report overview</h2>
+        </div>
+        <div class="source-chip" id="sourceChip">Workbook loaded</div>
       </div>
 
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex flex-col gap-3 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 class="font-semibold">Client status summary</h2>
-            <p class="text-sm text-slate-500">Generated dynamically from the processed data.</p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button id="previewBtn" type="button" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium hover:bg-slate-50">Preview Data</button>
-            <button id="editBtn" type="button" class="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium hover:bg-slate-50">Edit Data</button>
-            <button id="downloadBtn" type="button" class="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800">Download Excel</button>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead id="summaryHead"></thead>
-            <tbody id="summaryBody"></tbody>
-          </table>
-        </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-top"><span>RECORDS</span><i>01</i></div><div id="statRecords">0</div><p>Total processed rows</p></div>
+        <div class="stat-card"><div class="stat-top"><span>CLIENTS</span><i>02</i></div><div id="statClients">0</div><p>Unique classifications</p></div>
+        <div class="stat-card"><div class="stat-top"><span>CLOSED</span><i>03</i></div><div id="statClosed">0</div><p>Resolved records</p></div>
+        <div class="stat-card"><div class="stat-top"><span>PENDING</span><i>04</i></div><div id="statPending">0</div><p>Awaiting action</p></div>
       </div>
 
-      <div id="dataPanel" class="mt-6 hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div class="flex flex-col gap-3 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 id="dataTitle" class="font-semibold">Processed data</h2>
-            <p id="dataSubtitle" class="text-sm text-slate-500">Read-only preview.</p>
-          </div>
-          <div class="flex gap-2">
-            <button id="saveBtn" type="button" class="hidden rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-medium text-white">Save edits</button>
-            <button id="closePanelBtn" type="button" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium hover:bg-slate-50">Close</button>
+      <div class="panel">
+        <div class="panel-head">
+          <div><div class="eyebrow">CLASSIFICATION</div><h2>Client status summary</h2><p>Live summary generated from the processed workbook.</p></div>
+          <div class="actions">
+            <button id="previewBtn" type="button" class="secondary-btn">Preview data</button>
+            <button id="editBtn" type="button" class="secondary-btn">Edit data</button>
+            <button id="downloadBtn" type="button" class="primary-btn">Download Excel <span>↓</span></button>
           </div>
         </div>
-        <div class="max-h-[70vh] overflow-auto">
-          <table class="min-w-max text-sm">
-            <thead id="dataHead" class="sticky top-0 bg-slate-100"></thead>
-            <tbody id="dataBody"></tbody>
-          </table>
-        </div>
+        <div class="table-wrap"><table><thead id="summaryHead"></thead><tbody id="summaryBody"></tbody></table></div>
       </div>
 
-      <div class="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 class="font-semibold">Processing rules</h2>
-        <div class="mt-3 grid gap-3 md:grid-cols-2">
-          <div class="rounded-xl bg-slate-50 p-4 text-sm"><div class="font-medium">Classification</div><div class="mt-1 text-slate-600">Extract value between <code>Domain:</code> and <code>|</code>. Blank value becomes <strong>NABFID DC</strong>.</div></div>
-          <div class="rounded-xl bg-slate-50 p-4 text-sm"><div class="font-medium">Organization</div><div class="mt-1 text-slate-600">Subject contains <strong>KPMG</strong> → <strong>KPMG Assurance and Consulting Services LLP</strong>. Otherwise → <strong>Edgeverve Systems Limited- NaBFID</strong>.</div></div>
+      <div id="dataPanel" class="panel data-panel hidden">
+        <div class="panel-head">
+          <div><div class="eyebrow">WORKBOOK DATA</div><h2 id="dataTitle">Processed data</h2><p id="dataSubtitle">Read-only preview.</p></div>
+          <div class="actions"><button id="saveBtn" type="button" class="primary-btn hidden">Save edits</button><button id="closePanelBtn" type="button" class="secondary-btn">Close</button></div>
+        </div>
+        <div class="data-scroll"><table><thead id="dataHead"></thead><tbody id="dataBody"></tbody></table></div>
+      </div>
+
+      <div class="rules-panel">
+        <div><div class="eyebrow">AUTOMATION RULES</div><h2>Configured processing logic</h2></div>
+        <div class="rule-grid">
+          <div><span>01</span><h3>Classification</h3><p>Extract the value after <code>Domain:</code> and before <code>|</code>. Empty values become <strong>NABFID DC</strong>.</p></div>
+          <div><span>02</span><h3>Organization</h3><p>Subjects containing <strong>KPMG</strong> map to KPMG Assurance and Consulting Services LLP; all others map to Edgeverve Systems Limited- NaBFID.</p></div>
         </div>
       </div>
     </section>
+
+    <footer>© NABFID Offense Processor <span>•</span> Secure client-side processing</footer>
   </main>
-
 <script src="app.js"></script>
 </body>
 </html>
