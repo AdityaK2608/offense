@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root{--ink:#111827;--muted:#667085;--line:#e7eaf0;--surface:#fff;--navy:#0b1f3a;--accent:#244cff}
-*{box-sizing:border-box;font-family:"Inter",sans-serif}html{scroll-behavior:smooth}
+*{box-sizing:border-box;font-family:"Inter 18pt","Inter",sans-serif}html{scroll-behavior:smooth}
 body{margin:0;font-family:"Inter",sans-serif;color:var(--ink);background:#f6f7fa;min-height:100vh}
 button,input{font:inherit;font-family:"Inter",sans-serif}.hidden{display:none!important}
 .ambient{position:fixed;width:520px;height:520px;border-radius:50%;filter:blur(90px);opacity:.12;pointer-events:none}.ambient-one{background:#536dfe;top:-280px;right:-180px}.ambient-two{background:#7c3aed;bottom:-320px;left:-250px}
