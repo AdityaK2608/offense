@@ -304,12 +304,24 @@
     const bodyStyle = {
       font: { name: EXCEL_FONT, sz: 10, family: 2, color: { rgb: "374151" } },
       alignment: { vertical: "center", wrapText: false },
-      border
+      border: {
+        top: { style: "thin", color: { rgb: "202020" } },
+        bottom: { style: "thin", color: { rgb: "202020" } },
+        left: { style: "thin", color: { rgb: "202020" } },
+        right: { style: "thin", color: { rgb: "202020" } }
+      }
     };
 
     const alternateStyle = {
-      ...bodyStyle,
-      fill: { fgColor: { rgb: "F8FAFC" } }
+      font: { name: EXCEL_FONT, sz: 10, family: 2, color: { rgb: "374151" } },
+      fill: { fgColor: { rgb: "F8FAFC" } },
+      alignment: { vertical: "center", wrapText: false },
+      border: {
+        top: { style: "thin", color: { rgb: "202020" } },
+        bottom: { style: "thin", color: { rgb: "202020" } },
+        left: { style: "thin", color: { rgb: "202020" } },
+        right: { style: "thin", color: { rgb: "202020" } }
+      }
     };
 
     // -----------------------------
@@ -455,7 +467,13 @@
               vertical: "center",
               wrapText: false
             },
-            fill: { fgColor: { rgb: row % 2 === 0 ? "F8FAFC" : "FFFFFF" } }
+            fill: { fgColor: { rgb: row % 2 === 0 ? "F8FAFC" : "FFFFFF" } },
+            border: {
+              top: { style: "thin", color: { rgb: "202020" } },
+              bottom: { style: "thin", color: { rgb: "202020" } },
+              left: { style: "thin", color: { rgb: "202020" } },
+              right: { style: "thin", color: { rgb: "202020" } }
+            }
           };
         }
       }
