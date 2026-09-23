@@ -437,21 +437,53 @@
     const table = document.querySelector("#summaryHead").closest("table");
     if (!table) return;
 
-    const htmlTable = table.cloneNode(true);
-    htmlTable.style.borderCollapse = "collapse";
-    htmlTable.querySelectorAll("th, td").forEach(cell => {
-      cell.style.border = "1px solid #d9dee8";
-      cell.style.padding = "8px 12px";
-      cell.style.fontFamily = "Inter 18pt, Inter, Arial, sans-serif";
-      cell.style.fontSize = "10pt";
-      cell.style.whiteSpace = "nowrap";
+    const rows = Array.from(table.querySelectorAll("tr"));
+    const bodyRows = rows.slice(1, -1);
+    const totalRow = rows[rows.length - 1];
+
+    const border = "#D9DEE8";
+    const headerBg = "#0B2A5B";
+    const totalBg = "#2457B8";
+    const textColor = "#1F2937";
+    const white = "#FFFFFF";
+    const font = "Inter 18pt";
+
+    const cellHtml = (cell, isHeader = false, isTotal = false) => {
+      const bg = isHeader ? headerBg : isTotal ? totalBg : white;
+      const color = isHeader || isTotal ? white : textColor;
+      const weight = isHeader || isTotal ? "700" : "400";
+
+      return '<td bgcolor="' + bg + '" style="background-color:' + bg + ' !important;color:' + color + ' !important;font-family:"' + font + '",Inter,Arial,sans-serif !important;font-size:10pt !important;font-weight:' + weight + ' !important;border:1px solid ' + border + ' !important;padding:8px 12px !important;line-height:1.25 !important;white-space:nowrap !important;mso-font-alt:Arial;">' +
+        '<font face="' + font + '" color="' + color + '" size="2" style="font-family:"' + font + '",Inter,Arial,sans-serif;color:' + color + ';font-size:10pt;font-weight:' + weight + ';">' +
+        clean(cell.textContent) +
+        '</font></td>';
+    };
+
+    let html = '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-spacing:0;font-family:"' + font + '",Inter,Arial,sans-serif;font-size:10pt;">';
+
+    html += '<thead><tr>';
+    rows[0].querySelectorAll("th,td").forEach(cell => {
+      html += cellHtml(cell, true, false);
+    });
+    html += '</tr></thead><tbody>';
+
+    bodyRows.forEach(row => {
+      html += '<tr>';
+      row.querySelectorAll("th,td").forEach(cell => {
+        html += cellHtml(cell, false, false);
+      });
+      html += '</tr>';
     });
 
-    const plainRows = Array.from(table.querySelectorAll("tr")).map(row =>
+    html += '<tr>';
+    totalRow.querySelectorAll("th,td").forEach(cell => {
+      html += cellHtml(cell, false, true);
+    });
+    html += '</tr></tbody></table>';
+
+    const plainRows = rows.map(row =>
       Array.from(row.querySelectorAll("th, td")).map(cell => clean(cell.textContent)).join("\t")
     );
-
-    const html = htmlTable.outerHTML;
     const text = plainRows.join("\n");
 
     try {
@@ -467,6 +499,7 @@
         container.innerHTML = html;
         container.style.position = "fixed";
         container.style.left = "-9999px";
+        container.style.opacity = "0";
         document.body.appendChild(container);
 
         const range = document.createRange();
@@ -487,7 +520,6 @@
       alert("Unable to copy the table. Please try again.");
     }
   }
-
   els.copyTableBtn.addEventListener("click", copySummaryTable);
   els.previewBtn.addEventListener("click", () => renderData(false));
   els.editBtn.addEventListener("click", () => renderData(true));
