@@ -293,7 +293,7 @@
         const address = XLSX.utils.encode_cell({ r: row, c: col });
         if (!offenseSheet[address]) continue;
         offenseSheet[address].s = {
-          font: { name: "Inter", sz: 10 },
+          font: { name: "Inter 18pt", sz: 10 },
           alignment: { vertical: "center", wrapText: false }
         };
       }
@@ -354,7 +354,7 @@
         const address = XLSX.utils.encode_cell({ r: row, c: col });
         if (!summarySheet[address]) continue;
         summarySheet[address].s = {
-          font: { name: "Inter", sz: 10 },
+          font: { name: "Inter 18pt", sz: 10 },
           alignment: { vertical: "center", wrapText: false }
         };
       }
@@ -362,7 +362,7 @@
 
     // Dark-blue header and grand-total row, matching the reference report.
     const headerStyle = {
-      font: { name: "Inter", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
+      font: { name: "Inter 18pt", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "0B2A5B" } },
       alignment: { horizontal: "center", vertical: "center", wrapText: false },
       border: {
@@ -373,7 +373,7 @@
       }
     };
     const totalStyle = {
-      font: { name: "Inter", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
+      font: { name: "Inter 18pt", sz: 10, bold: true, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "0B2A5B" } },
       alignment: { vertical: "center", wrapText: false }
     };
