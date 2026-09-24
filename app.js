@@ -21,6 +21,7 @@
     downloadBtn: $("downloadBtn"),
     copyTableBtn: $("copyTableBtn"),
     copyEmailBtn: $("copyEmailBtn"),
+    copySubjectBtn: $("copySubjectBtn"),
     emailPreview: $("emailPreview"),
     dataPanel: $("dataPanel"),
     dataTitle: $("dataTitle"),
@@ -630,9 +631,11 @@
     body.className = "email-preview-body";
     body.style.cssText = "max-width:920px;margin:0 auto;font-family:'Inter 18pt','Inter',Arial,sans-serif;font-size:10pt;color:#111827;line-height:1.5;";
 
-    const subject = document.createElement("p");
-    subject.style.cssText = "margin:0 0 18px 0;font-weight:700;";
-    subject.textContent = "Subject: NABFID Daily Offense Report || " + date;
+    const subjectText = "NABFID Daily Offense Report || " + date;
+    const subjectPreview = document.createElement("div");
+    subjectPreview.className = "email-subject-preview";
+    subjectPreview.dataset.subject = subjectText;
+    subjectPreview.textContent = "Subject: " + subjectText;
 
     const greeting = document.createElement("p");
     greeting.textContent = "Hi Team,";
@@ -646,8 +649,47 @@
     message.append(strongDate);
     message.append(".");
 
-    body.append(subject, greeting, message, table);
-    els.emailPreview.replaceChildren(body);
+    body.append(greeting, message, table);
+    els.emailPreview.replaceChildren(subjectPreview, body);
+  }
+
+  async function copySubject() {
+    if (!processedRows.length) {
+      alert("Please upload and process an Excel file first.");
+      return;
+    }
+
+    const date = formatEmailDate(getCreatedOnValue(processedRows[0]));
+    if (!date) {
+      alert('Unable to determine the date from the "Created on" column.');
+      return;
+    }
+
+    const subject = "NABFID Daily Offense Report || " + date;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(subject);
+      } else {
+        const area = document.createElement("textarea");
+        area.value = subject;
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+
+      const oldLabel = els.copySubjectBtn.textContent;
+      els.copySubjectBtn.textContent = "Subject Copied ✓";
+      setTimeout(() => {
+        els.copySubjectBtn.textContent = oldLabel;
+      }, 1800);
+    } catch (error) {
+      console.error("Copy subject failed:", error);
+      alert("Unable to copy the subject. Please try again.");
+    }
   }
 
   async function copyEmail() {
@@ -759,6 +801,7 @@
     els.downloadBtn.addEventListener("click", download);
     els.copyTableBtn.addEventListener("click", copySummaryTable);
     els.copyEmailBtn.addEventListener("click", copyEmail);
+    els.copySubjectBtn.addEventListener("click", copySubject);
 
     els.saveBtn.addEventListener("click", () => {
       // Rebuild derived fields after edits so Classification and Organization
