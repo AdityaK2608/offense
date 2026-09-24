@@ -245,14 +245,14 @@
     table.removeAttribute("class");
     table.style.cssText = [
       "border-collapse:collapse", "border-spacing:0", "width:auto", "max-width:none",
-      "table-layout:auto", "font-family:Inter,Arial,sans-serif", "font-size:9pt", "color:#111827"
+      "table-layout:auto", "font-family:Inter,Arial,sans-serif", "font-size:10pt", "color:#111827"
     ].join(";");
 
     [...table.querySelectorAll("tr")].forEach((row, rowIndex, rows) => {
       const special = rowIndex === 0 || rowIndex === rows.length - 1;
       row.querySelectorAll("th,td").forEach(cell => {
         cell.style.cssText = [
-          "border:1px solid #202020", "padding:4px 8px", "line-height:1.35",
+          "border:1px solid #202020", "padding:4px 8px", "line-height:1.35", "font-family:Inter,Arial,sans-serif", "font-size:10pt",
           "vertical-align:middle", "white-space:nowrap", "height:24px",
           special ? "background:#0B2A5B" : "background:#FFFFFF",
           special ? "color:#FFFFFF" : "color:#111827",
