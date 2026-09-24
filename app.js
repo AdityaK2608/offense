@@ -21,6 +21,7 @@
     downloadBtn: $("downloadBtn"),
     copyTableBtn: $("copyTableBtn"),
     copyEmailBtn: $("copyEmailBtn"),
+    emailPreview: $("emailPreview"),
     dataPanel: $("dataPanel"),
     dataTitle: $("dataTitle"),
     dataSubtitle: $("dataSubtitle"),
@@ -163,6 +164,7 @@
     $("statClients").textContent = map.size;
     $("statClosed").textContent = totals.Closed;
     $("statPending").textContent = totals["Pending on COE"] + totals["Pending On Customer"];
+    renderEmailPreview();
   }
 
   function renderData(editable) {
@@ -548,38 +550,13 @@
       : clients.slice(0, -1).join(", ") + " and " + clients[clients.length - 1];
   }
 
-  async function copyEmail() {
-    if (!processedRows.length) {
-      alert("Please upload and process an Excel file first.");
-      return;
-    }
-
-    const date = formatEmailDate(getCreatedOnValue(processedRows[0]));
-    if (!date) {
-      alert('Unable to determine the date from the "Created on" column.');
-      return;
-    }
-
-    const map = summarize(processedRows);
-    const clients = getEmailClients(map);
+  function buildEmailTable() {
     const summaryTable = document.querySelector("#summaryHead")?.closest("table");
-
-    if (!summaryTable) {
-      alert("The summary table is not available.");
-      return;
-    }
+    if (!summaryTable) return null;
 
     const copiedTable = summaryTable.cloneNode(true);
-    copiedTable.removeAttribute("class");
-    copiedTable.style.cssText = [
-      "border-collapse:collapse",
-      "border-spacing:0",
-      "width:auto",
-      "max-width:none",
-      "table-layout:auto",
-      "font-family:Inter,Arial,sans-serif",
-      "font-size:9pt"
-    ].join(";");
+    copiedTable.className = "email-preview-table";
+    copiedTable.removeAttribute("style");
 
     const copiedRows = [...copiedTable.querySelectorAll("tr")];
     copiedRows.forEach((row, rowIndex) => {
@@ -604,17 +581,59 @@
       });
     });
 
-    const html =
-      '<div style="font-family:Arial,sans-serif;font-size:11pt;color:#111827;line-height:1.5;">' +
-        '<p style="margin:0 0 18px 0;">Hi Team,</p>' +
-        '<p style="margin:0 0 18px 0;">Please find the attached ' + clients +
-        ' daily offense data for <strong>' + date + '</strong>.</p>' +
-        copiedTable.outerHTML +
-      '</div>';
+    return copiedTable;
+  }
 
-    const plainText =
-      "Hi Team,\n\n" +
-      "Please find the attached " + clients + " daily offense data for " + date + ".";
+  function renderEmailPreview() {
+    if (!els.emailPreview || !processedRows.length) return;
+
+    const date = formatEmailDate(getCreatedOnValue(processedRows[0]));
+    const map = summarize(processedRows);
+    const clients = getEmailClients(map);
+    const table = buildEmailTable();
+
+    if (!date || !table) {
+      els.emailPreview.innerHTML = '<div class="email-preview-empty">Unable to generate the email preview because the "Created on" date could not be determined.</div>';
+      return;
+    }
+
+    const body = document.createElement("div");
+    body.className = "email-preview-body";
+
+    const greeting = document.createElement("p");
+    greeting.textContent = "Hi Team,";
+
+    const message = document.createElement("p");
+    message.append("Please find the attached " + clients + " daily offense data for ");
+    const strongDate = document.createElement("strong");
+    strongDate.textContent = date;
+    message.append(strongDate);
+    message.append(".");
+
+    body.append(greeting, message, table);
+    els.emailPreview.replaceChildren(body);
+  }
+
+  async function copyEmail() {
+    if (!processedRows.length) {
+      alert("Please upload and process an Excel file first.");
+      return;
+    }
+
+    renderEmailPreview();
+
+    const previewBody = els.emailPreview?.querySelector(".email-preview-body");
+    if (!previewBody) {
+      alert('Unable to generate the email preview.');
+      return;
+    }
+
+    const plainText = [...previewBody.querySelectorAll("p, tr")]
+      .map(element => clean(element.textContent))
+      .filter(Boolean)
+      .join("\n");
+
+    const html = previewBody.outerHTML;
 
     try {
       if (navigator.clipboard && window.ClipboardItem) {
