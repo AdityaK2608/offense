@@ -62,14 +62,23 @@
         <div class="panel-head">
           <div><div class="eyebrow">CLASSIFICATION</div><h2>Client status summary</h2><p>Live summary generated from the processed workbook.</p></div>
           <div class="actions">
-            <button id="copyEmailBtn" type="button" class="primary-btn">Copy Email</button>
-            <button id="copyTableBtn" type="button" class="secondary-btn">Copy table</button>
             <button id="previewBtn" type="button" class="secondary-btn">Preview data</button>
             <button id="editBtn" type="button" class="secondary-btn">Edit data</button>
             <button id="downloadBtn" type="button" class="primary-btn">Download Excel <span>↓</span></button>
           </div>
         </div>
         <div class="table-wrap"><table><thead id="summaryHead"></thead><tbody id="summaryBody"></tbody></table></div>
+      </div>
+
+      <div class="panel email-panel">
+        <div class="panel-head email-panel-head">
+          <div><div class="eyebrow">EMAIL PREVIEW</div><h2>Daily offense email</h2><p>Review the email before copying it to Outlook.</p></div>
+          <div class="actions">
+            <button id="copyEmailBtn" type="button" class="primary-btn">Copy Email</button>
+            <button id="copyTableBtn" type="button" class="secondary-btn">Copy table</button>
+          </div>
+        </div>
+        <div id="emailPreview" class="email-preview"></div>
       </div>
 
       <div id="dataPanel" class="panel data-panel hidden">
@@ -82,6 +91,6 @@
     </section>
 
   </main>
-<script src="app.js?v=8"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
