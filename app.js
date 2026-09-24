@@ -22,7 +22,7 @@
   const els = {
     fileInput: $("fileInput"), dropzone: $("dropzone"), fileName: $("fileName"),
     resultSection: $("resultSection"), previewBtn: $("previewBtn"), editBtn: $("editBtn"),
-    downloadBtn: $("downloadBtn"), copyTableBtn: $("copyTableBtn"),
+    copyTableBtn: $("copyTableBtn"),
     copyEmailBtn: $("copyEmailBtn"), copySubjectBtn: $("copySubjectBtn"),
     emailPreview: $("emailPreview"), dataPanel: $("dataPanel"), dataTitle: $("dataTitle"),
     dataSubtitle: $("dataSubtitle"), dataHead: $("dataHead"), dataBody: $("dataBody"),
