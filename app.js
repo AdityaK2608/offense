@@ -428,8 +428,15 @@
 
     const output = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const blob = new Blob([output], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const date = parseCreatedDate(getCreatedOnValue(processedRows[0]));
-    const filename = date ? "NABFID Offenses - " + date + ".xlsx" : "NABFID Offenses.xlsx";
+    const parts = parseCreatedDateParts(getCreatedOnValue(processedRows[0]));
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+    const ordinal = day => {
+      if (day % 100 >= 11 && day % 100 <= 13) return day + "th";
+      return day + ({1:"st",2:"nd",3:"rd"}[day % 10] || "th");
+    };
+    const filename = parts
+      ? "NaBFID Offenses " + ordinal(parts.day) + " " + months[parts.month - 1] + ".xlsx"
+      : "NaBFID Offenses.xlsx";
 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
