@@ -20,6 +20,7 @@
     editBtn: $("editBtn"),
     downloadBtn: $("downloadBtn"),
     copyTableBtn: $("copyTableBtn"),
+    copyEmailBtn: $("copyEmailBtn"),
     dataPanel: $("dataPanel"),
     dataTitle: $("dataTitle"),
     dataSubtitle: $("dataSubtitle"),
@@ -469,6 +470,79 @@
     }
   }
 
+  function emailDate(value) {
+    const m = clean(value).match(/(\\d{1,4})[\\/\\-.](\\d{1,2})[\\/\\-.](\\d{1,4})/);
+    if (!m) return "";
+    const a=Number(m[1]), b=Number(m[2]), c=Number(m[3]);
+    const day = a >= 1000 ? c : a;
+    const month = a >= 1000 ? b : b;
+    const year = a >= 1000 ? a : c;
+    if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1000) return "";
+    const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const suffix = day%10===1 && day!==11 ? "st" : day%10===2 && day!==12 ? "nd" : day%10===3 && day!==13 ? "rd" : "th";
+    return day + suffix + " " + months[month-1] + " " + year;
+  }
+
+  async function copyEmail() {
+    if (!processedRows.length) return;
+    const date = emailDate(processedRows[0]["Created on"]);
+    if (!date) {
+      alert('Unable to determine the date from "Created on".');
+      return;
+    }
+
+    const map = summarize(processedRows);
+    const total = { closed:0, coe:0, customer:0, all:0 };
+    let body = "";
+    [...map.keys()].sort().forEach(client => {
+      const s=map.get(client);
+      total.closed+=s.Closed;
+      total.coe+=s["Pending on COE"];
+      total.customer+=s["Pending On Customer"];
+      total.all+=s.total;
+      body += '<tr>' +
+        '<td style="border:1px solid #202020;padding:4px 8px;white-space:nowrap;">'+client+'</td>' +
+        '<td style="border:1px solid #202020;padding:4px 8px;text-align:center;">'+s.Closed+'</td>' +
+        '<td style="border:1px solid #202020;padding:4px 8px;text-align:center;">'+s["Pending on COE"]+'</td>' +
+        '<td style="border:1px solid #202020;padding:4px 8px;text-align:center;">'+s["Pending On Customer"]+'</td>' +
+        '<td style="border:1px solid #202020;padding:4px 8px;text-align:center;">'+s.total+'</td></tr>';
+    });
+
+    const head='<tr>' +
+      '<th style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;text-align:center;white-space:nowrap;">Client</th>' +
+      '<th style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;text-align:center;white-space:nowrap;">Closed</th>' +
+      '<th style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;text-align:center;white-space:nowrap;">Pending on COE</th>' +
+      '<th style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;text-align:center;white-space:nowrap;">Pending On Customer</th>' +
+      '<th style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;text-align:center;white-space:nowrap;">Grand Total</th></tr>';
+
+    const grand='<tr>' +
+      '<td style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;font-weight:700;">Grand Total</td>' +
+      '<td style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;font-weight:700;text-align:center;">'+total.closed+'</td>' +
+      '<td style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;font-weight:700;text-align:center;">'+total.coe+'</td>' +
+      '<td style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;font-weight:700;text-align:center;">'+total.customer+'</td>' +
+      '<td style="border:1px solid #202020;padding:5px 9px;background:#0B2A5B;color:#fff;font-weight:700;text-align:center;">'+total.all+'</td></tr>';
+
+    const html='<div style="font-family:Arial,sans-serif;font-size:11pt;color:#111;line-height:1.5;">' +
+      '<p style="margin:0 0 18px;">Hi Team,</p>' +
+      '<p style="margin:0 0 18px;">Please find the attached NABFID DC, DR, OCI, KPMG and CCIL DC, DR daily offense data for <strong>'+date+'</strong>.</p>' +
+      '<table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:auto;font-family:Arial,sans-serif;font-size:10pt;">'+head+'<tbody>'+body+grand+'</tbody></table>' +
+      '<p style="margin:18px 0 0;">Thanks &amp; Regards,</p></div>';
+
+    const text="Hi Team,\n\nPlease find the attached NABFID DC, DR, OCI, KPMG and CCIL DC, DR daily offense data for "+date+".\n\nThanks & Regards,";
+    try {
+      await navigator.clipboard.write([new ClipboardItem({
+        "text/html": new Blob([html],{type:"text/html"}),
+        "text/plain": new Blob([text],{type:"text/plain"})
+      })]);
+      const old=els.copyEmailBtn.textContent;
+      els.copyEmailBtn.textContent="Email Copied ✓";
+      setTimeout(()=>els.copyEmailBtn.textContent=old,1800);
+    } catch (error) {
+      console.error(error);
+      alert("Unable to copy the email. Please try again.");
+    }
+  }
+
   function showDataPanel(editable) {
     if (!processedRows.length) {
       alert("Please upload and process an Excel file first.");
@@ -505,6 +579,7 @@
     els.editBtn.addEventListener("click", () => showDataPanel(true));
     els.downloadBtn.addEventListener("click", download);
     els.copyTableBtn.addEventListener("click", copySummaryTable);
+    els.copyEmailBtn.addEventListener("click", copyEmail);
 
     els.saveBtn.addEventListener("click", () => {
       renderSummary();
