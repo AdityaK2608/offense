@@ -175,10 +175,6 @@
     });
     body.appendChild(totalRow);
 
-    $("statRecords").textContent = processedRows.length;
-    $("statClients").textContent = map.size;
-    $("statClosed").textContent = totals.Closed;
-    $("statPending").textContent = totals["Pending on COE"] + totals["Pending On Customer"];
     renderEmailPreview();
   }
 
