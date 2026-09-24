@@ -554,9 +554,20 @@
     const summaryTable = document.querySelector("#summaryHead")?.closest("table");
     if (!summaryTable) return null;
 
+    // Keep the email table identical to the locked Copy Table format.
+    // Everything is inline so Outlook does not depend on the website CSS.
     const copiedTable = summaryTable.cloneNode(true);
-    copiedTable.className = "email-preview-table";
-    copiedTable.removeAttribute("style");
+    copiedTable.removeAttribute("class");
+    copiedTable.style.cssText = [
+      "border-collapse:collapse",
+      "border-spacing:0",
+      "width:auto",
+      "max-width:none",
+      "table-layout:auto",
+      "font-family:Inter,Arial,sans-serif",
+      "font-size:9pt",
+      "color:#111827"
+    ].join(";");
 
     const copiedRows = [...copiedTable.querySelectorAll("tr")];
     copiedRows.forEach((row, rowIndex) => {
