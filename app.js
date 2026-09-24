@@ -20,6 +20,7 @@
     editBtn: $("editBtn"),
     downloadBtn: $("downloadBtn"),
     copyTableBtn: $("copyTableBtn"),
+    copyEmailBtn: $("copyEmailBtn"),
     dataPanel: $("dataPanel"),
     dataTitle: $("dataTitle"),
     dataSubtitle: $("dataSubtitle"),
@@ -469,6 +470,126 @@
     }
   }
 
+  function formatEmailDate(value) {
+    const match = clean(value).match(/(\\d{1,4})[\\/\\-.](\\d{1,2})[\\/\\-.](\\d{1,4})/);
+    if (!match) return "";
+
+    const a = Number(match[1]), b = Number(match[2]), c = Number(match[3]);
+    let day, month, year;
+
+    if (a >= 1000) {
+      year = a; month = b; day = c;
+    } else if (c >= 1000) {
+      day = a; month = b; year = c;
+    } else {
+      return "";
+    }
+
+    if (day < 1 || day > 31 || month < 1 || month > 12) return "";
+
+    const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+    const suffix = day % 10 === 1 && day !== 11 ? "st"
+      : day % 10 === 2 && day !== 12 ? "nd"
+      : day % 10 === 3 && day !== 13 ? "rd"
+      : "th";
+
+    return day + suffix + " " + months[month - 1] + " " + year;
+  }
+
+  function getEmailClients(map) {
+    const clients = [...map.keys()].map(clean).filter(Boolean);
+    return clients.length === 1
+      ? clients[0]
+      : clients.slice(0, -1).join(", ") + " and " + clients[clients.length - 1];
+  }
+
+  async function copyEmail() {
+    if (!processedRows.length) {
+      alert("Please upload and process an Excel file first.");
+      return;
+    }
+
+    const date = formatEmailDate(processedRows[0]["Created on"]);
+    if (!date) {
+      alert('Unable to determine the date from the "Created on" column.');
+      return;
+    }
+
+    const map = summarize(processedRows);
+    const clients = getEmailClients(map);
+    const summaryTable = document.querySelector("#summaryHead")?.closest("table");
+
+    if (!summaryTable) {
+      alert("The summary table is not available.");
+      return;
+    }
+
+    const copiedTable = summaryTable.cloneNode(true);
+    copiedTable.removeAttribute("class");
+    copiedTable.style.cssText = [
+      "border-collapse:collapse",
+      "border-spacing:0",
+      "width:auto",
+      "max-width:none",
+      "table-layout:auto",
+      "font-family:Inter,Arial,sans-serif",
+      "font-size:9pt"
+    ].join(";");
+
+    const copiedRows = [...copiedTable.querySelectorAll("tr")];
+    copiedRows.forEach((row, rowIndex) => {
+      const cells = [...row.querySelectorAll("th,td")];
+      const isHeader = rowIndex === 0;
+      const isGrandTotal = rowIndex === copiedRows.length - 1;
+
+      cells.forEach((cell, cellIndex) => {
+        cell.style.cssText = [
+          "border:1px solid #202020",
+          "padding:4px 8px",
+          "line-height:1.35",
+          "vertical-align:middle",
+          "white-space:nowrap",
+          "height:24px",
+          isHeader || isGrandTotal ? "background:#0B2A5B" : "background:#FFFFFF",
+          isHeader || isGrandTotal ? "color:#FFFFFF" : "color:#111827",
+          isHeader || isGrandTotal ? "font-weight:700" : "font-weight:400",
+          cellIndex === 0 ? "text-align:left" : "text-align:center"
+        ].join(";");
+        cell.removeAttribute("class");
+      });
+    });
+
+    const html =
+      '<div style="font-family:Arial,sans-serif;font-size:11pt;color:#111827;line-height:1.5;">' +
+        '<p style="margin:0 0 18px 0;">Hi Team,</p>' +
+        '<p style="margin:0 0 18px 0;">Please find the attached ' + clients +
+        ' daily offense data for <strong>' + date + '</strong>.</p>' +
+        copiedTable.outerHTML +
+      '</div>';
+
+    const plainText =
+      "Hi Team,\\n\\n" +
+      "Please find the attached " + clients + " daily offense data for " + date + ".";
+
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          "text/html": new Blob([html], { type: "text/html" }),
+          "text/plain": new Blob([plainText], { type: "text/plain" })
+        })
+      ]);
+
+      const oldLabel = els.copyEmailBtn.textContent;
+      els.copyEmailBtn.textContent = "Email Copied ✓";
+      setTimeout(() => {
+        els.copyEmailBtn.textContent = oldLabel;
+      }, 1800);
+    } catch (error) {
+      console.error("Copy email failed:", error);
+      alert("Unable to copy the email. Please try again.");
+    }
+  }
+
   function showDataPanel(editable) {
     if (!processedRows.length) {
       alert("Please upload and process an Excel file first.");
@@ -505,6 +626,7 @@
     els.editBtn.addEventListener("click", () => showDataPanel(true));
     els.downloadBtn.addEventListener("click", download);
     els.copyTableBtn.addEventListener("click", copySummaryTable);
+    els.copyEmailBtn.addEventListener("click", copyEmail);
 
     els.saveBtn.addEventListener("click", () => {
       renderSummary();
