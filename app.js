@@ -96,7 +96,13 @@
   }
 
   function normalizeStatus(value) {
-    return clean(value).toLowerCase();
+    return clean(value).replace(/\s+/g, " ").toLowerCase();
+  }
+
+  function getColumnKey(row, target) {
+    return Object.keys(row || {}).find(
+      header => clean(header).toLowerCase() === target.toLowerCase()
+    );
   }
 
   function summarize(rows) {
@@ -104,6 +110,7 @@
 
     rows.forEach(row => {
       const client = clean(row.Classification) || "NABFID DC";
+      const statusKey = getColumnKey(row, "status");
       if (!map.has(client)) {
         map.set(client, {
           Closed: 0,
@@ -114,7 +121,7 @@
       }
 
       const summary = map.get(client);
-      const status = normalizeStatus(row.Status);
+      const status = normalizeStatus(statusKey ? row[statusKey] : "");
 
       if (status === "closed") summary.Closed++;
       else if (status === "pending on coe") summary["Pending on COE"]++;
