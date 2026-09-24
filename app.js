@@ -52,30 +52,28 @@
       : ORGANIZATIONS.default;
   }
 
-  function reorderColumns(row, headers) {
-    const columns = [];
-    let statusHeader = null;
+  const OUTPUT_COLUMNS = [
+    "Tickets#",
+    "Created on",
+    "Department",
+    "Prioritytitle",
+    "Type",
+    "subject",
+    "Classification",
+    "Organization",
+    "Wing",
+    "Closedon",
+    "resolution_steps",
+    "Status"
+  ];
 
-    headers.forEach(header => {
-      // Always keep Status as the final column in the generated output.
-      if (clean(header).toLowerCase() === "status") {
-        statusHeader = header;
-        return;
-      }
-
-      columns.push(header);
-      if (header.toLowerCase() === "subject") {
-        columns.push("Classification", "Organization");
-      }
-    });
-
-    if (!columns.includes("Classification")) columns.push("Classification");
-    if (!columns.includes("Organization")) columns.push("Organization");
-    if (statusHeader) columns.push(statusHeader);
-
+  function reorderColumns(row) {
     const result = {};
-    [...new Set(columns)].forEach(column => {
-      if (Object.prototype.hasOwnProperty.call(row, column)) result[column] = row[column];
+    OUTPUT_COLUMNS.forEach(column => {
+      const key = Object.keys(row || {}).find(
+        header => clean(header).toLowerCase() === column.toLowerCase()
+      );
+      result[column] = key ? row[key] : "";
     });
     return result;
   }
@@ -101,7 +99,7 @@
           next.Organization = getOrganization(row[subjectKey]);
         }
       });
-      return reorderColumns(next, headers);
+      return reorderColumns(next);
     });
   }
 
