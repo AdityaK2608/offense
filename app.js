@@ -22,7 +22,7 @@
   const els = {
     fileInput: $("fileInput"), dropzone: $("dropzone"), fileName: $("fileName"),
     resultSection: $("resultSection"), previewBtn: $("previewBtn"), editBtn: $("editBtn"),
-    copyTableBtn: $("copyTableBtn"),
+    copyTableBtn: $("copyTableBtn"), downloadBtn: $("downloadBtn"),
     copyEmailBtn: $("copyEmailBtn"), copySubjectBtn: $("copySubjectBtn"),
     emailPreview: $("emailPreview"), dataPanel: $("dataPanel"), dataTitle: $("dataTitle"),
     dataSubtitle: $("dataSubtitle"), dataHead: $("dataHead"), dataBody: $("dataBody"),
@@ -513,6 +513,7 @@
     els.previewBtn.addEventListener("click", () => showDataPanel(false));
     els.editBtn.addEventListener("click", () => showDataPanel(true));
     els.copyTableBtn.addEventListener("click", copySummaryTable);
+    els.downloadBtn.addEventListener("click", download);
     els.copyEmailBtn.addEventListener("click", copyEmail);
     els.copySubjectBtn.addEventListener("click", copySubject);
     els.saveBtn.addEventListener("click", () => {
