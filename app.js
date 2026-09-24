@@ -79,6 +79,11 @@
     return rows.map(row => {
       const next = {};
       headers.forEach(header => {
+        // Classification and Organization are generated fields. Ignore any
+        // stale copies from the uploaded workbook so the processor remains
+        // the single source of truth.
+        if (/^(classification|organization)$/i.test(clean(header))) return;
+
         next[header] = clean(row[header]);
         if (header === subjectKey) {
           next.Classification = extractClassification(row[subjectKey]);
@@ -471,7 +476,7 @@
   }
 
   function formatEmailDate(value) {
-    const match = clean(value).match(/(\\d{1,4})[\\/\\-.](\\d{1,2})[\\/\\-.](\\d{1,4})/);
+    const match = clean(value).match(/(\d{1,4})[\/\-.](\d{1,2})[\/\-.](\d{1,4})/);
     if (!match) return "";
 
     const a = Number(match[1]), b = Number(match[2]), c = Number(match[3]);
@@ -497,7 +502,8 @@
   }
 
   function getEmailClients(map) {
-    const clients = [...map.keys()].map(clean).filter(Boolean);
+    // Keep the email client order identical to the visible summary table.
+    const clients = [...map.keys()].map(clean).filter(Boolean).sort();
     return clients.length === 1
       ? clients[0]
       : clients.slice(0, -1).join(", ") + " and " + clients[clients.length - 1];
@@ -568,16 +574,38 @@
       '</div>';
 
     const plainText =
-      "Hi Team,\\n\\n" +
+      "Hi Team,\n\n" +
       "Please find the attached " + clients + " daily offense data for " + date + ".";
 
     try {
-      await navigator.clipboard.write([
-        new ClipboardItem({
-          "text/html": new Blob([html], { type: "text/html" }),
-          "text/plain": new Blob([plainText], { type: "text/plain" })
-        })
-      ]);
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "text/html": new Blob([html], { type: "text/html" }),
+              "text/plain": new Blob([plainText], { type: "text/plain" })
+            })
+          ]);
+        } catch (clipboardError) {
+          const area = document.createElement("textarea");
+          area.value = plainText;
+          area.style.position = "fixed";
+          area.style.left = "-9999px";
+          document.body.appendChild(area);
+          area.select();
+          document.execCommand("copy");
+          area.remove();
+        }
+      } else {
+        const area = document.createElement("textarea");
+        area.value = plainText;
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
 
       const oldLabel = els.copyEmailBtn.textContent;
       els.copyEmailBtn.textContent = "Email Copied ✓";
@@ -588,6 +616,16 @@
       console.error("Copy email failed:", error);
       alert("Unable to copy the email. Please try again.");
     }
+  }
+
+  function recalculateDerivedFields() {
+    processedRows.forEach(row => {
+      const subjectKey = Object.keys(row).find(h => clean(h).toLowerCase() === "subject");
+      if (!subjectKey) return;
+
+      row.Classification = extractClassification(row[subjectKey]);
+      row.Organization = getOrganization(row[subjectKey]);
+    });
   }
 
   function showDataPanel(editable) {
@@ -629,6 +667,9 @@
     els.copyEmailBtn.addEventListener("click", copyEmail);
 
     els.saveBtn.addEventListener("click", () => {
+      // Rebuild derived fields after edits so Classification and Organization
+      // always reflect the current Subject value.
+      recalculateDerivedFields();
       renderSummary();
       renderData(true);
     });
