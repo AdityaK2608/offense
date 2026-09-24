@@ -24,18 +24,20 @@ button,input{font:inherit}
 .upload-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;grid-template-columns:1fr 1.25fr;gap:22px;align-items:center}
 .upload-copy h2{font-size:22px;letter-spacing:-.035em;margin:6px 0 7px}
 .upload-copy p{font-size:11px;line-height:1.6;color:var(--muted);margin:0;max-width:430px}
-.dropzone{min-height:150px;border:1px dashed #cbd2dd;border-radius:11px;background:#fafbfc;padding:22px;text-align:center;display:flex;align-items:center;justify-content:center;gap:14px;transition:border-color .18s,background .18s}
+.dropzone{min-height:150px;border:1px dashed #cbd2dd;border-radius:11px;background:#fafbfc;padding:20px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;transition:border-color .18s,background .18s}
 .dropzone:hover,.drop-active{border-color:#7d8ca6;background:#f7f9fc}
 .upload-icon{width:34px;height:34px;flex:0 0 34px;border-radius:9px;background:#eef2f7;color:var(--navy);display:grid;place-items:center}
 .upload-icon svg{width:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dropzone > div:nth-child(2){display:flex;flex-direction:column;align-items:center;gap:6px}
 .dropzone h3{margin:0;font-size:12px}
-.dropzone p{display:inline;margin:0 7px;color:#9aa2af;font-size:10px}
+.dropzone p{display:block;margin:0;color:#9aa2af;font-size:10px}
+.dropzone .primary-btn{display:inline-flex;align-items:center;justify-content:center}
 .primary-btn,.secondary-btn{border-radius:8px;padding:8px 12px;font-size:10px;font-weight:700;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
 .primary-btn{border:1px solid var(--navy);background:var(--navy);color:#fff}
 .primary-btn:hover{transform:translateY(-1px);background:#12386f}
 .secondary-btn{border:1px solid var(--line);background:#fff;color:#414b5b}
 .secondary-btn:hover{background:#f7f8fa;border-color:#cfd5df}
-.file-name{grid-column:1/-1;color:#8b94a4;font-size:9px;min-height:13px;text-align:left;border-top:1px solid var(--line);padding-top:10px}
+.file-name{width:100%;color:#8b94a4;font-size:9px;min-height:13px;text-align:center;border-top:1px solid var(--line);padding-top:9px;margin-top:2px}
 
 .results{margin-top:20px}
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:12px;overflow:hidden}
@@ -104,7 +106,7 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
 }
 @media(max-width:480px){
   .upload-card{padding:16px}
-  .dropzone{flex-direction:column}
+  .dropzone{min-height:135px}
   .dropzone p{display:block;margin:5px 0}
   .metrics{grid-template-columns:1fr 1fr}
   .metrics>div{padding:11px 12px}
