@@ -3,94 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offense Processor V2</title>
-  
+  <title>Offense Processor V3</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=3">
 </head>
 <body>
-  <div class="ambient ambient-one"></div>
-  <div class="ambient ambient-two"></div>
-
   <main class="shell">
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark">O</div>
         <div>
-          <div class="eyebrow">OPERATIONS</div>
           <h1>Offense Processor</h1>
+          <span>V3</span>
         </div>
       </div>
     </header>
 
-    <section class="hero-card">
-      <div class="hero-copy">
-        <div class="badge">EXCEL WORKFLOW <span>V2</span></div>
-        <p>Upload your workbook, process the data, review the results, and export a polished Excel report.</p>
+    <section class="upload-card">
+      <div class="upload-copy">
+        <div class="eyebrow">WORKBOOK</div>
+        <h2>Process offense data</h2>
+        <p>Upload an Excel workbook to generate the report and daily offense email.</p>
       </div>
 
       <div id="dropzone" class="dropzone">
-        <div class="upload-icon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v2.25A2.25 2.25 0 0 0 7.25 20h9.5A2.25 2.25 0 0 0 19 17.75V15.5"/></svg>
+        <div class="upload-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15.5v2.25A2.25 2.25 0 0 0 7.25 20h9.5A2.25 2.25 0 0 0 19 17.75V15.5"/></svg>
         </div>
-        <h3>Drop your Excel workbook here</h3>
-        <p>Supports <strong>.xlsx</strong> and <strong>.xls</strong> files</p>
-        <label id="browseBtn" for="fileInput" class="primary-btn">Browse files <span>↗</span></label>
-        <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden">
+        <div>
+          <h3>Drop your Excel file here</h3>
+          <p>or</p>
+          <label id="browseBtn" for="fileInput" class="primary-btn">Browse files</label>
+          <input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden">
+        </div>
         <div id="fileName" class="file-name">No file selected</div>
       </div>
-
     </section>
 
     <section id="resultSection" class="hidden results">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">PROCESSING COMPLETE</div>
-          <h2>Report overview</h2>
-        </div>
-        <div class="source-chip">Workbook loaded</div>
+      <div class="metrics">
+        <div><span>Records</span><strong id="statRecords">0</strong></div>
+        <div><span>Clients</span><strong id="statClients">0</strong></div>
+        <div><span>Closed</span><strong id="statClosed">0</strong></div>
+        <div><span>Pending</span><strong id="statPending">0</strong></div>
       </div>
 
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-top"><span>RECORDS</span><i>01</i></div><div id="statRecords">0</div><p>Total processed rows</p></div>
-        <div class="stat-card"><div class="stat-top"><span>CLIENTS</span><i>02</i></div><div id="statClients">0</div><p>Unique classifications</p></div>
-        <div class="stat-card"><div class="stat-top"><span>CLOSED</span><i>03</i></div><div id="statClosed">0</div><p>Resolved records</p></div>
-        <div class="stat-card"><div class="stat-top"><span>PENDING</span><i>04</i></div><div id="statPending">0</div><p>Awaiting action</p></div>
-      </div>
-
-      <div class="panel">
+      <section class="panel">
         <div class="panel-head">
-          <div><div class="eyebrow">CLASSIFICATION</div><h2>Client status summary</h2><p>Live summary generated from the processed workbook.</p></div>
+          <div>
+            <div class="eyebrow">SUMMARY</div>
+            <h2>Client status</h2>
+          </div>
           <div class="actions">
-            <button id="previewBtn" type="button" class="secondary-btn">Preview data</button>
-            <button id="editBtn" type="button" class="secondary-btn">Edit data</button>
-            <button id="downloadBtn" type="button" class="primary-btn">Download Excel <span>↓</span></button>
+            <button id="previewBtn" type="button" class="secondary-btn">Preview</button>
+            <button id="editBtn" type="button" class="secondary-btn">Edit</button>
+            <button id="downloadBtn" type="button" class="primary-btn">Download Excel</button>
           </div>
         </div>
-        <div class="table-wrap"><table><thead id="summaryHead"></thead><tbody id="summaryBody"></tbody></table></div>
-      </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="summaryHead"></thead>
+            <tbody id="summaryBody"></tbody>
+          </table>
+        </div>
+      </section>
 
-      <div class="panel email-panel">
-        <div class="panel-head email-panel-head">
-          <div><div class="eyebrow">EMAIL PREVIEW</div><h2>Daily offense email</h2><p>Review the email before copying it to Outlook.</p></div>
+      <section class="panel email-panel">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow">EMAIL</div>
+            <h2>Daily offense email</h2>
+          </div>
           <div class="actions">
             <button id="copyEmailBtn" type="button" class="primary-btn">Copy Email</button>
             <button id="copyTableBtn" type="button" class="secondary-btn">Copy table</button>
           </div>
         </div>
         <div id="emailPreview" class="email-preview"></div>
-      </div>
+      </section>
 
-      <div id="dataPanel" class="panel data-panel hidden">
+      <section id="dataPanel" class="panel data-panel hidden">
         <div class="panel-head">
-          <div><div class="eyebrow">WORKBOOK DATA</div><h2 id="dataTitle">Processed data</h2><p id="dataSubtitle">Read-only preview.</p></div>
-          <div class="actions"><button id="saveBtn" type="button" class="primary-btn hidden">Save edits</button><button id="closePanelBtn" type="button" class="secondary-btn">Close</button></div>
+          <div>
+            <div class="eyebrow">DATA</div>
+            <h2 id="dataTitle">Processed data</h2>
+            <p id="dataSubtitle">Read-only preview.</p>
+          </div>
+          <div class="actions">
+            <button id="saveBtn" type="button" class="primary-btn hidden">Save edits</button>
+            <button id="closePanelBtn" type="button" class="secondary-btn">Close</button>
+          </div>
         </div>
-        <div class="data-scroll"><table><thead id="dataHead"></thead><tbody id="dataBody"></tbody></table></div>
-      </div>
+        <div class="data-scroll">
+          <table>
+            <thead id="dataHead"></thead>
+            <tbody id="dataBody"></tbody>
+          </table>
+        </div>
+      </section>
     </section>
-
   </main>
-<script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>
