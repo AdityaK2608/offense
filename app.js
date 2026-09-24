@@ -512,7 +512,6 @@
     });
     els.previewBtn.addEventListener("click", () => showDataPanel(false));
     els.editBtn.addEventListener("click", () => showDataPanel(true));
-    els.downloadBtn.addEventListener("click", download);
     els.copyTableBtn.addEventListener("click", copySummaryTable);
     els.copyEmailBtn.addEventListener("click", copyEmail);
     els.copySubjectBtn.addEventListener("click", copySubject);
