@@ -391,14 +391,61 @@
     ).join("\n");
 
     try {
-      if (navigator.clipboard && window.ClipboardItem) {
+      // Clipboard HTML does not carry the page's CSS with it. Build a
+      // self-contained table with inline styles so Outlook/Teams/Gmail
+      // preserve the intended formatting when the table is pasted.
+      const copiedTable = table.cloneNode(true);
+      copiedTable.removeAttribute("class");
+      copiedTable.style.cssText = [
+        "border-collapse:collapse",
+        "border-spacing:0",
+        "width:100%",
+        "font-family:Inter,Arial,sans-serif",
+        "font-size:14px",
+        "color:#111827"
+      ].join(";");
+
+      const copiedRows = [...copiedTable.querySelectorAll("tr")];
+      copiedRows.forEach((row, rowIndex) => {
+        const cells = [...row.querySelectorAll("th,td")];
+        const isHeader = rowIndex === 0;
+        const isGrandTotal = rowIndex === copiedRows.length - 1;
+
+        cells.forEach((cell, cellIndex) => {
+          cell.style.cssText = [
+            "border:1px solid #202020",
+            "padding:12px 16px",
+            "line-height:1.35",
+            "vertical-align:middle",
+            "white-space:nowrap",
+            isHeader || isGrandTotal ? "background:#0B2A5B" : "background:#FFFFFF",
+            isHeader || isGrandTotal ? "color:#FFFFFF" : "color:#111827",
+            isHeader || isGrandTotal ? "font-weight:700" : "font-weight:400",
+            cellIndex === 0 ? "text-align:left" : "text-align:center"
+          ].join(";");
+
+          cell.removeAttribute("class");
+        });
+      });
+
+      try {
         await navigator.clipboard.write([
           new ClipboardItem({
-            "text/html": new Blob([table.outerHTML], { type: "text/html" }),
+            "text/html": new Blob([copiedTable.outerHTML], { type: "text/html" }),
             "text/plain": new Blob([text], { type: "text/plain" })
           })
         ]);
-      } else {
+      } catch (clipboardError) {
+        const area = document.createElement("textarea");
+        area.value = text;
+        area.style.position = "fixed";
+        area.style.left = "-9999px";
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+    } catch (error) {
         const area = document.createElement("textarea");
         area.value = text;
         area.style.position = "fixed";
