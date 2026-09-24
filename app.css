@@ -16,9 +16,7 @@ button,input{font:inherit}
 .shell{max-width:1180px;margin:0 auto;padding:22px 24px 40px}
 .topbar{height:48px;display:flex;align-items:center;margin-bottom:20px}
 .brand{display:flex;align-items:center;gap:10px}
-.brand-mark{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;background:var(--navy);color:#fff;font-size:14px;font-weight:700}
 .brand h1{margin:0;font-size:15px;line-height:1.1;letter-spacing:-.02em}
-.brand span{display:block;margin-top:3px;color:#8b94a4;font-size:8px;font-weight:700;letter-spacing:.12em}
 
 .eyebrow{font-size:8px;font-weight:700;letter-spacing:.14em;color:#8b94a4}
 .upload-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;grid-template-columns:1fr 1.25fr;gap:22px;align-items:center}
@@ -40,11 +38,6 @@ button,input{font:inherit}
 .file-name{width:100%;color:#8b94a4;font-size:9px;min-height:13px;text-align:center;border-top:1px solid var(--line);padding-top:9px;margin-top:2px}
 
 .results{margin-top:20px}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:12px;overflow:hidden}
-.metrics>div{padding:13px 16px;border-right:1px solid var(--line)}
-.metrics>div:last-child{border-right:0}
-.metrics span{display:block;color:#8b94a4;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
-.metrics strong{display:block;margin-top:5px;font-size:20px;letter-spacing:-.03em}
 
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:12px}
 .panel-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:1px solid var(--line)}
@@ -68,7 +61,6 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
 .data-scroll thead{position:sticky;top:0;z-index:2}
 .data-scroll th,.data-scroll td{white-space:nowrap;text-align:left;vertical-align:top}
 .data-scroll th{position:sticky;top:0;z-index:3;min-width:120px}
-.data-scroll td{min-width:120px}
 .data-scroll th:nth-child(1),.data-scroll td:nth-child(1){min-width:130px}
 .data-scroll th:nth-child(2),.data-scroll td:nth-child(2){min-width:155px}
 .data-scroll th:nth-child(3),.data-scroll td:nth-child(3){min-width:150px}
@@ -88,20 +80,12 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
 .email-subject-preview{max-width:920px;margin:0 auto 18px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fafbfc;font-family:"Inter 18pt","Inter",Arial,sans-serif;font-size:10pt;color:#111827;font-weight:700}
 .email-preview-body{max-width:920px;margin:0 auto;font-family:"Inter 18pt","Inter",Arial,sans-serif;font-size:10pt;color:#111827;line-height:1.5}
 .email-preview-body p{margin:0 0 18px}
-.email-preview-table{border-collapse:collapse;border-spacing:0;width:auto;max-width:100%;table-layout:auto;font-family:"Inter 18pt","Inter",Arial,sans-serif;font-size:9pt;color:#111827}
-.email-preview-table th,.email-preview-table td{border:1px solid #202020;padding:4px 8px;line-height:1.35;vertical-align:middle;white-space:nowrap;height:24px}
-.email-preview-table th{background:#0B2A5B;color:#fff;font-weight:700;text-align:center}
-.email-preview-table td{background:#fff;color:#111827;font-weight:400;text-align:center}
-.email-preview-table tr:last-child td{background:#0B2A5B;color:#fff;font-weight:700;text-align:center}
 .email-preview-empty{padding:18px;border:1px dashed var(--line);border-radius:9px;color:#8a93a3;font-size:10px;background:#fafbfc}
 
 @media(max-width:800px){
   .shell{padding:16px 12px 28px}
   .upload-card{grid-template-columns:1fr}
   .dropzone{min-height:135px}
-  .metrics{grid-template-columns:1fr 1fr}
-  .metrics>div:nth-child(2){border-right:0}
-  .metrics>div:nth-child(-n+2){border-bottom:1px solid var(--line)}
   .panel-head{align-items:flex-start;flex-direction:column}
   .actions{justify-content:flex-start}
 }
@@ -109,7 +93,5 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
   .upload-card{padding:16px}
   .dropzone{min-height:135px}
   .dropzone p{display:block;margin:5px 0}
-  .metrics{grid-template-columns:1fr 1fr}
-  .metrics>div{padding:11px 12px}
   .email-preview{padding:18px 14px}
 }
