@@ -599,11 +599,15 @@
 
     const body = document.createElement("div");
     body.className = "email-preview-body";
+    body.style.cssText = "max-width:920px;margin:0 auto;font-family:Arial,sans-serif;font-size:11pt;color:#111827;line-height:1.5;";
 
     const greeting = document.createElement("p");
     greeting.textContent = "Hi Team,";
 
+    greeting.style.cssText = "margin:0 0 18px 0;";
+    
     const message = document.createElement("p");
+    message.style.cssText = "margin:0 0 18px 0;";
     message.append("Please find the attached " + clients + " daily offense data for ");
     const strongDate = document.createElement("strong");
     strongDate.textContent = date;
