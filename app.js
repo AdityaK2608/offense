@@ -398,10 +398,11 @@
       copiedTable.style.cssText = [
         "border-collapse:collapse",
         "border-spacing:0",
-        "width:700px",
-        "max-width:700px",
+        "width:auto",
+        "max-width:none",
+        "table-layout:auto",
         "font-family:Inter,Arial,sans-serif",
-        "font-size:10pt",
+        "font-size:9pt",
         "color:#111827"
       ].join(";");
 
@@ -414,11 +415,11 @@
         cells.forEach((cell, cellIndex) => {
           cell.style.cssText = [
             "border:1px solid #202020",
-            "padding:6px 10px",
+            "padding:4px 8px",
             "line-height:1.35",
             "vertical-align:middle",
             "white-space:nowrap",
-            "height:28px",
+            "height:24px",
             isHeader || isGrandTotal ? "background:#0B2A5B" : "background:#FFFFFF",
             isHeader || isGrandTotal ? "color:#FFFFFF" : "color:#111827",
             isHeader || isGrandTotal ? "font-weight:700" : "font-weight:400",
