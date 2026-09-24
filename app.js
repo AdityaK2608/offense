@@ -245,14 +245,14 @@
     table.removeAttribute("class");
     table.style.cssText = [
       "border-collapse:collapse", "border-spacing:0", "width:auto", "max-width:none",
-      "table-layout:auto", "font-family:Inter,Arial,sans-serif", "font-size:10pt", "color:#111827"
+      "table-layout:auto", "font-family:"Inter 18pt",Inter,Arial,sans-serif", "font-size:10pt", "color:#111827"
     ].join(";");
 
     [...table.querySelectorAll("tr")].forEach((row, rowIndex, rows) => {
       const special = rowIndex === 0 || rowIndex === rows.length - 1;
       row.querySelectorAll("th,td").forEach(cell => {
         cell.style.cssText = [
-          "border:1px solid #202020", "padding:4px 8px", "line-height:1.35", "font-family:Inter,Arial,sans-serif", "font-size:10pt",
+          "border:1px solid #202020", "padding:4px 8px", "line-height:1.35", "font-family:"Inter 18pt",Inter,Arial,sans-serif", "font-size:10pt",
           "vertical-align:middle", "white-space:nowrap", "height:24px",
           special ? "background:#0B2A5B" : "background:#FFFFFF",
           special ? "color:#FFFFFF" : "color:#111827",
@@ -318,18 +318,18 @@
 
     const body = document.createElement("div");
     body.className = "email-preview-body";
-    body.style.cssText = "max-width:920px;margin:0 auto;font-family:Inter,Arial,sans-serif;font-size:10pt;color:#111827;line-height:1.5;"
+    body.style.cssText = "max-width:920px;margin:0 auto;font-family:"Inter 18pt",Inter,Arial,sans-serif;font-size:10pt;color:#111827;line-height:1.5;"
 
     const greeting = document.createElement("p");
     greeting.textContent = "Hi Team,";
-    greeting.style.cssText = "margin:0 0 18px 0;font-family:Inter,Arial,sans-serif;font-size:10pt;color:#111827;"
+    greeting.style.cssText = "margin:0 0 18px 0;font-family:"Inter 18pt",Inter,Arial,sans-serif;font-size:10pt;color:#111827;"
 
     const message = document.createElement("p");
-    message.style.cssText = "margin:0 0 18px 0;font-family:Inter,Arial,sans-serif;font-size:10pt;color:#111827;";
+    message.style.cssText = "margin:0 0 18px 0;font-family:"Inter 18pt",Inter,Arial,sans-serif;font-size:10pt;color:#111827;";
     message.append("Please find the attached " + clients + " daily offense data for ");
     const strongDate = document.createElement("strong");
     strongDate.textContent = date;
-    strongDate.style.cssText = "font-family:Inter,Arial,sans-serif;font-size:10pt;color:#111827;font-weight:700;";
+    strongDate.style.cssText = "font-family:"Inter 18pt",Inter,Arial,sans-serif;font-size:10pt;color:#111827;font-weight:700;";
     message.append(strongDate, ".");
 
     body.append(greeting, message, table);
