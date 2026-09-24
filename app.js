@@ -15,7 +15,7 @@
     "Wing": 20, "Closedon": 20, "resolution_steps": 55, "Status": 18
   };
   const SUMMARY_HEADERS = ["Client", "Closed", "Pending on COE", "Pending On Customer", "Grand Total"];
-  const EXCEL_FONT = "Inter 18pt";
+  const EXCEL_FONT = "Inter";
   const $ = id => document.getElementById(id);
   let processedRows = [];
 
