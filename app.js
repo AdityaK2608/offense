@@ -610,7 +610,7 @@
 
     const body = document.createElement("div");
     body.className = "email-preview-body";
-    body.style.cssText = "max-width:920px;margin:0 auto;font-family:Arial,sans-serif;font-size:11pt;color:#111827;line-height:1.5;";
+    body.style.cssText = "max-width:920px;margin:0 auto;font-family:'Inter 18pt','Inter',Arial,sans-serif;font-size:10pt;color:#111827;line-height:1.5;";
 
     const greeting = document.createElement("p");
     greeting.textContent = "Hi Team,";
