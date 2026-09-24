@@ -204,23 +204,75 @@
     });
   }
 
-  function parseCreatedDate(value) {
-    const match = clean(value).match(/(\d{1,4})[\/\-.](\d{1,2})[\/\-.](\d{1,4})/);
-    if (!match) return "";
+  function getCreatedOnValue(row) {
+    const key = Object.keys(row || {}).find(
+      header => clean(header).toLowerCase() === "created on"
+    );
+    return key ? row[key] : "";
+  }
 
-    const a = Number(match[1]), b = Number(match[2]), c = Number(match[3]);
-    let day, month, year;
+  function parseCreatedDateParts(value) {
+    const text = clean(value);
+    if (!text) return null;
 
-    if (a >= 1000) {
-      year = a; month = b; day = c;
-    } else if (c >= 1000) {
-      day = a; month = b; year = c;
-    } else {
-      return "";
+    // Excel serial date/time.
+    if (/^\d+(?:\.\d+)?$/.test(text)) {
+      const serial = Number(text);
+      if (serial > 0 && serial < 100000) {
+        const date = new Date(Date.UTC(1899, 11, 30) + serial * 86400000);
+        if (!Number.isNaN(date.getTime())) {
+          return {
+            day: date.getUTCDate(),
+            month: date.getUTCMonth() + 1,
+            year: date.getUTCFullYear()
+          };
+        }
+      }
     }
 
-    if (day < 1 || day > 31 || month < 1 || month > 12) return "";
-    return String(day).padStart(2, "0") + String(month).padStart(2, "0") + String(year).slice(-4);
+    // Handles DD/MM/YYYY, DD-MM-YYYY, YYYY-MM-DD, and the same formats
+    // when a time is appended.
+    const match = text.match(/(\d{1,4})[\/\-.](\d{1,2})[\/\-.](\d{1,4})/);
+    if (match) {
+      const a = Number(match[1]), b = Number(match[2]), c = Number(match[3]);
+      let day, month, year;
+
+      if (a >= 1000) {
+        year = a; month = b; day = c;
+      } else if (c >= 1000) {
+        day = a; month = b; year = c;
+      }
+
+      if (
+        Number.isInteger(day) &&
+        Number.isInteger(month) &&
+        Number.isInteger(year) &&
+        day >= 1 && day <= 31 &&
+        month >= 1 && month <= 12
+      ) {
+        return { day, month, year };
+      }
+    }
+
+    // Last fallback for values such as "23 September 2026".
+    const parsed = new Date(text);
+    if (!Number.isNaN(parsed.getTime())) {
+      return {
+        day: parsed.getDate(),
+        month: parsed.getMonth() + 1,
+        year: parsed.getFullYear()
+      };
+    }
+
+    return null;
+  }
+
+  function parseCreatedDate(value) {
+    const parts = parseCreatedDateParts(value);
+    if (!parts) return "";
+    return String(parts.day).padStart(2, "0") +
+      String(parts.month).padStart(2, "0") +
+      String(parts.year).slice(-4);
   }
 
   async function handleFile(file) {
@@ -374,7 +426,7 @@
 
     const output = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const blob = new Blob([output], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const date = parseCreatedDate(processedRows[0]["Created on"]);
+    const date = parseCreatedDate(getCreatedOnValue(processedRows[0]));
     const filename = date ? "NABFID Offenses - " + date + ".xlsx" : "NABFID Offenses.xlsx";
 
     const url = URL.createObjectURL(blob);
@@ -476,29 +528,16 @@
   }
 
   function formatEmailDate(value) {
-    const match = clean(value).match(/(\d{1,4})[\/\-.](\d{1,2})[\/\-.](\d{1,4})/);
-    if (!match) return "";
-
-    const a = Number(match[1]), b = Number(match[2]), c = Number(match[3]);
-    let day, month, year;
-
-    if (a >= 1000) {
-      year = a; month = b; day = c;
-    } else if (c >= 1000) {
-      day = a; month = b; year = c;
-    } else {
-      return "";
-    }
-
-    if (day < 1 || day > 31 || month < 1 || month > 12) return "";
+    const parts = parseCreatedDateParts(value);
+    if (!parts) return "";
 
     const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-    const suffix = day % 10 === 1 && day !== 11 ? "st"
-      : day % 10 === 2 && day !== 12 ? "nd"
-      : day % 10 === 3 && day !== 13 ? "rd"
+    const suffix = parts.day % 10 === 1 && parts.day !== 11 ? "st"
+      : parts.day % 10 === 2 && parts.day !== 12 ? "nd"
+      : parts.day % 10 === 3 && parts.day !== 13 ? "rd"
       : "th";
 
-    return day + suffix + " " + months[month - 1] + " " + year;
+    return parts.day + suffix + " " + months[parts.month - 1] + " " + parts.year;
   }
 
   function getEmailClients(map) {
@@ -515,7 +554,7 @@
       return;
     }
 
-    const date = formatEmailDate(processedRows[0]["Created on"]);
+    const date = formatEmailDate(getCreatedOnValue(processedRows[0]));
     if (!date) {
       alert('Unable to determine the date from the "Created on" column.');
       return;
