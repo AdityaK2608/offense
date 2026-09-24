@@ -54,14 +54,24 @@
 
   function reorderColumns(row, headers) {
     const columns = [];
+    let statusHeader = null;
+
     headers.forEach(header => {
+      // Always keep Status as the final column in the generated output.
+      if (clean(header).toLowerCase() === "status") {
+        statusHeader = header;
+        return;
+      }
+
       columns.push(header);
       if (header.toLowerCase() === "subject") {
         columns.push("Classification", "Organization");
       }
     });
+
     if (!columns.includes("Classification")) columns.push("Classification");
     if (!columns.includes("Organization")) columns.push("Organization");
+    if (statusHeader) columns.push(statusHeader);
 
     const result = {};
     [...new Set(columns)].forEach(column => {
