@@ -630,11 +630,14 @@
     body.className = "email-preview-body";
     body.style.cssText = "max-width:920px;margin:0 auto;font-family:'Inter 18pt','Inter',Arial,sans-serif;font-size:10pt;color:#111827;line-height:1.5;";
 
+    const subject = document.createElement("p");
+    subject.style.cssText = "margin:0 0 18px 0;font-weight:700;";
+    subject.textContent = "Subject: NABFID Daily Offense Report || " + date;
+
     const greeting = document.createElement("p");
     greeting.textContent = "Hi Team,";
-
     greeting.style.cssText = "margin:0 0 18px 0;";
-    
+
     const message = document.createElement("p");
     message.style.cssText = "margin:0 0 18px 0;";
     message.append("Please find the attached " + clients + " daily offense data for ");
@@ -643,7 +646,7 @@
     message.append(strongDate);
     message.append(".");
 
-    body.append(greeting, message, table);
+    body.append(subject, greeting, message, table);
     els.emailPreview.replaceChildren(body);
   }
 
