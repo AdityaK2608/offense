@@ -586,7 +586,7 @@
           isHeader || isGrandTotal ? "background:#0B2A5B" : "background:#FFFFFF",
           isHeader || isGrandTotal ? "color:#FFFFFF" : "color:#111827",
           isHeader || isGrandTotal ? "font-weight:700" : "font-weight:400",
-          cellIndex === 0 ? "text-align:left" : "text-align:center"
+          "text-align:center"
         ].join(";");
         cell.removeAttribute("class");
       });
