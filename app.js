@@ -391,9 +391,8 @@
     ).join("\n");
 
     try {
-      // Clipboard HTML does not carry the page's CSS with it. Build a
-      // self-contained table with inline styles so Outlook/Teams/Gmail
-      // preserve the intended formatting when the table is pasted.
+      // Build a self-contained table because pasted HTML does not inherit
+      // the application's stylesheet.
       const copiedTable = table.cloneNode(true);
       copiedTable.removeAttribute("class");
       copiedTable.style.cssText = [
@@ -423,29 +422,29 @@
             isHeader || isGrandTotal ? "font-weight:700" : "font-weight:400",
             cellIndex === 0 ? "text-align:left" : "text-align:center"
           ].join(";");
-
           cell.removeAttribute("class");
         });
       });
 
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({
-            "text/html": new Blob([copiedTable.outerHTML], { type: "text/html" }),
-            "text/plain": new Blob([text], { type: "text/plain" })
-          })
-        ]);
-      } catch (clipboardError) {
-        const area = document.createElement("textarea");
-        area.value = text;
-        area.style.position = "fixed";
-        area.style.left = "-9999px";
-        document.body.appendChild(area);
-        area.select();
-        document.execCommand("copy");
-        area.remove();
-      }
-    } catch (error) {
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([
+            new ClipboardItem({
+              "text/html": new Blob([copiedTable.outerHTML], { type: "text/html" }),
+              "text/plain": new Blob([text], { type: "text/plain" })
+            })
+          ]);
+        } catch (clipboardError) {
+          const area = document.createElement("textarea");
+          area.value = text;
+          area.style.position = "fixed";
+          area.style.left = "-9999px";
+          document.body.appendChild(area);
+          area.select();
+          document.execCommand("copy");
+          area.remove();
+        }
+      } else {
         const area = document.createElement("textarea");
         area.value = text;
         area.style.position = "fixed";
@@ -456,11 +455,13 @@
         area.remove();
       }
 
-      const old = els.copyTableBtn.textContent;
+      const oldLabel = els.copyTableBtn.textContent;
       els.copyTableBtn.textContent = "Copied ✓";
-      setTimeout(() => els.copyTableBtn.textContent = old, 1600);
+      setTimeout(() => {
+        els.copyTableBtn.textContent = oldLabel;
+      }, 1600);
     } catch (error) {
-      console.error(error);
+      console.error("Copy table failed:", error);
       alert("Unable to copy the table. Please try again.");
     }
   }
