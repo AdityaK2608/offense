@@ -79,7 +79,22 @@
   }
 
   function normalizeRule(value) {
-    return clean(value).replace(/\s+/g, " ").replace(/\s*-\s*/g, "-").toLowerCase();
+    return clean(value)
+      .replace(/\s+/g, " ")
+      .replace(/\s*-\s*/g, "-")
+      .replace(/\s*_\s*/g, "_")
+      .toLowerCase();
+  }
+
+  function extractRuleName(row) {
+    const direct = sourceValue(row, "RuleName");
+    if (direct) return direct;
+
+    // In the source workbook, RuleName may be embedded inside the subject
+    // as: "Domain: ...|Offence_ID: ...|RuleName: <rule>".
+    const subject = sourceValue(row, "subject");
+    const match = subject.match(/(?:^|\|)\s*RuleName\s*:\s*([^|]*)/i);
+    return match ? clean(match[1]) : "";
   }
 
   function isNabfidRecord(row) {
@@ -87,11 +102,14 @@
   }
 
   function isExcludedNabfidRule(row) {
-    const normalized = normalizeRule(sourceValue(row, "RuleName"));
+    const normalized = normalizeRule(extractRuleName(row));
     if (!normalized) return false;
+
     return EXCLUDED_NABFID_RULES.some(rule => {
       const excluded = normalizeRule(rule);
-      return normalized === excluded || normalized.includes(excluded) || excluded.includes(normalized);
+      return normalized === excluded ||
+        normalized.includes(excluded) ||
+        excluded.includes(normalized);
     });
   }
 
