@@ -35,11 +35,11 @@ button,input{font:inherit}
 .primary-btn:hover{transform:translateY(-1px);background:#12386f}
 .secondary-btn{border:1px solid var(--navy);background:var(--navy);color:#fff}
 .secondary-btn:hover{transform:translateY(-1px);background:#12386f}
-.date-selection{grid-column:1;width:100%;margin-top:-8px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fff 0%,#fcfdff 100%);padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px 18px;align-items:center;box-shadow:0 10px 30px rgba(15,31,58,.045)}
-.date-selection-copy h3{margin:5px 0 5px;font-size:13px;letter-spacing:-.02em}
+.date-selection{grid-column:1;width:100%;margin-top:-30px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fff 0%,#fcfdff 100%);padding:16px 18px;display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px 16px;align-items:center;box-shadow:0 10px 30px rgba(15,31,58,.045);position:relative;z-index:2}
+.date-selection-copy h3{margin:5px 0 5px;font-size:12px;line-height:1.25;letter-spacing:-.02em;white-space:nowrap}
 .date-selection-copy p{margin:0;color:var(--muted);font-size:9px;line-height:1.55}
-.date-picker-area{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%}
-.date-picker-trigger{height:52px;width:100%;border:1px solid #dfe4ec;border-radius:11px;background:#fff;display:flex;align-items:center;gap:11px;padding:0 13px;text-align:left;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(15,31,58,.04);transition:border-color .18s,box-shadow .18s,transform .18s}
+.date-picker-area{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;min-width:0}
+.date-picker-trigger{height:52px;width:100%;min-width:0;border:1px solid #dfe4ec;border-radius:11px;background:#fff;display:flex;align-items:center;gap:11px;padding:0 13px;text-align:left;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(15,31,58,.04);transition:border-color .18s,box-shadow .18s,transform .18s}
 .date-picker-trigger:hover{border-color:#b9c3d3;box-shadow:0 7px 20px rgba(15,31,58,.07);transform:translateY(-1px)}
 .date-picker-trigger:focus-visible{outline:0;border-color:#7d8ca6;box-shadow:0 0 0 4px rgba(11,42,91,.08)}
 .date-picker-icon{width:30px;height:30px;border-radius:8px;background:#f0f3f7;color:var(--navy);display:grid;place-items:center;flex:0 0 30px}
@@ -126,7 +126,7 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
 @media(max-width:800px){
   .shell{padding:16px 12px 28px}
   .upload-card{grid-template-columns:1fr}
-  .date-selection{grid-column:auto;grid-template-columns:1fr}
+  .date-selection{grid-column:auto;margin-top:0;grid-template-columns:1fr}
   .date-picker-area{grid-template-columns:1fr}
   .date-picker-popover{position:absolute;left:0;right:auto;width:min(318px,calc(100vw - 48px))}
     .dropzone{min-height:135px}
