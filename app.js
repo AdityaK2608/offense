@@ -47,11 +47,30 @@
     return value == null ? "" : String(value).trim();
   }
 
+  function normalizedHeader(value) {
+    // sheet_to_json disambiguates duplicate headings by appending _1, _2, etc.
+    // Treat those generated suffixes as the same source column when filtering.
+    return clean(value).toLowerCase().replace(/_\d+$/, "");
+  }
+
+  function sourceValues(row, column) {
+    const values = Object.keys(row || {})
+      .filter(header => normalizedHeader(header) === column.toLowerCase())
+      .map(header => clean(row[header]));
+    return values.length ? values : [""];
+  }
+
   function sourceValue(row, column) {
-    const key = Object.keys(row || {}).find(
-      h => clean(h).toLowerCase() === column.toLowerCase()
-    );
-    return key ? clean(row[key]) : "";
+    // Prefer the first populated duplicate.  This preserves the normal one-column
+    // behavior while avoiding a blank duplicate hiding a populated source value.
+    return sourceValues(row, column).find(Boolean) || "";
+  }
+
+  function filterText(value) {
+    // Copy/paste from Excel can contain zero-width format characters between
+    // words.  JavaScript's \s does not match all of them, so normalize them
+    // before applying the required phrase filters.
+    return clean(value).normalize("NFKC").replace(/[\u200B-\u200D\uFEFF]/g, " ");
   }
 
   const SOURCE_DATE_FORMAT = "d-m-yyyy h:mm:ss AM/PM";
@@ -112,24 +131,27 @@
   }
 
   function isNabfidRecord(row) {
-    return /nabfid/i.test(sourceValue(row, "subject")) || /nabfid/i.test(sourceValue(row, "Organization"));
+    return sourceValues(row, "subject").some(value => /nabfid/i.test(filterText(value))) ||
+      sourceValues(row, "Organization").some(value => /nabfid/i.test(filterText(value)));
   }
 
   function isExcludedNabfidRule(row) {
-    const subject = sourceValue(row, "subject");
-    if (!subject) return false;
-
-    // Exclude any NaBFID subject containing these operational phrases.
-    return EXCLUDED_SUBJECT_PATTERNS.some(pattern => pattern.test(subject));
+    // Check every duplicate source subject, not only the first heading emitted
+    // by sheet_to_json.  This is important for exports with repeated columns.
+    return sourceValues(row, "subject").some(subject =>
+      EXCLUDED_SUBJECT_PATTERNS.some(pattern => pattern.test(filterText(subject)))
+    );
   }
 
   function isBlankResolution(row) {
-    return !clean(sourceValue(row, "resolution_steps"));
+    // A row has a resolution only when at least one duplicate source column has
+    // a non-whitespace value.
+    return !sourceValues(row, "resolution_steps").some(value => clean(filterText(value)));
   }
 
   function processSheet(rows) {
     if (!rows.length) throw new Error("The workbook is empty.");
-    if (!Object.keys(rows[0]).some(h => clean(h).toLowerCase() === "subject")) {
+    if (!Object.keys(rows[0]).some(h => normalizedHeader(h) === "subject")) {
       throw new Error('Required column "subject" was not found.');
     }
 
@@ -613,9 +635,9 @@
       if (!sheet) throw new Error("Unable to read the first worksheet.");
       rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
       if (!rawRows.length) throw new Error("The workbook is empty.");
-      if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "subject")) throw new Error('Required column "subject" was not found.');
-      if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "created on")) throw new Error('Required column "Created on" was not found.');
-      if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "resolution_steps")) throw new Error('Required column "resolution_steps" was not found.');
+      if (!Object.keys(rawRows[0]).some(h => normalizedHeader(h) === "subject")) throw new Error('Required column "subject" was not found.');
+      if (!Object.keys(rawRows[0]).some(h => normalizedHeader(h) === "created on")) throw new Error('Required column "Created on" was not found.');
+      if (!Object.keys(rawRows[0]).some(h => normalizedHeader(h) === "resolution_steps")) throw new Error('Required column "resolution_steps" was not found.');
       showDateSelection(rawRows);
       els.fileName.textContent = "Ready: " + file.name + " • " + rawRows.length + " raw records";
       requestAnimationFrame(() => els.dateSelection.scrollIntoView({ behavior: "smooth", block: "center" }));
