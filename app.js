@@ -25,10 +25,15 @@
   let rawRows = [];
   let processedRows = [];
   let selectedReportDate = "";
+  let availableReportDates = [];
+  let calendarCursor = new Date();
 
   const els = {
     fileInput: $("fileInput"), dropzone: $("dropzone"), fileName: $("fileName"),
-    dateSelection: $("dateSelection"), reportDate: $("reportDate"), processBtn: $("processBtn"),
+    dateSelection: $("dateSelection"), reportDate: $("reportDate"), datePickerButton: $("datePickerButton"), datePickerValue: $("datePickerValue"),
+    datePickerPopover: $("datePickerPopover"), calendarPrev: $("calendarPrev"), calendarNext: $("calendarNext"),
+    calendarMonth: $("calendarMonth"), calendarHint: $("calendarHint"), calendarGrid: $("calendarGrid"), calendarToday: $("calendarToday"),
+    processBtn: $("processBtn"),
     dateSelectionStatus: $("dateSelectionStatus"), resultSection: $("resultSection"), previewBtn: $("previewBtn"), editBtn: $("editBtn"),
     copyTableBtn: $("copyTableBtn"), downloadBtn: $("downloadBtn"),
     copyEmailBtn: $("copyEmailBtn"), copySubjectBtn: $("copySubjectBtn"),
@@ -555,7 +560,11 @@
     rawRows = [];
     processedRows = [];
     selectedReportDate = "";
+    availableReportDates = [];
     els.reportDate.value = "";
+    els.datePickerValue.textContent = "Select a date";
+    els.datePickerButton.setAttribute("aria-expanded", "false");
+    els.datePickerPopover.classList.add("hidden");
     els.processBtn.disabled = true;
     els.dateSelectionStatus.textContent = "";
     els.dateSelection.classList.add("hidden");
@@ -566,12 +575,74 @@
   function showDateSelection(rows) {
     const dates = [...new Set(rows.map(row => dateKeyFromValue(sourceValue(row, "Created on"))).filter(Boolean))].sort();
     if (!dates.length) throw new Error('No valid dates were found in the "Created on" column.');
-    els.reportDate.min = dates[0];
-    els.reportDate.max = dates[dates.length - 1];
+    availableReportDates = dates;
+    calendarCursor = new Date(Number(dates[0].slice(0, 4)), Number(dates[0].slice(5, 7)) - 1, 1);
     els.reportDate.value = "";
+    els.datePickerValue.textContent = "Select a date";
     els.processBtn.disabled = true;
     els.dateSelectionStatus.textContent = dates.length + " date" + (dates.length === 1 ? "" : "s") + " available in the workbook.";
+    renderCalendar();
     els.dateSelection.classList.remove("hidden");
+  }
+
+  function formatPickerDate(key) {
+    const [year, month, day] = key.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  }
+
+  function renderCalendar() {
+    const year = calendarCursor.getFullYear();
+    const month = calendarCursor.getMonth();
+    const monthName = calendarCursor.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    els.calendarMonth.textContent = monthName;
+    els.calendarHint.textContent = availableReportDates.length + " date" + (availableReportDates.length === 1 ? "" : "s") + " available";
+    els.calendarGrid.innerHTML = "";
+
+    const firstDay = new Date(year, month, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevDays = new Date(year, month, 0).getDate();
+
+    for (let i = 0; i < 42; i++) {
+      const dayOffset = i - startOffset + 1;
+      let cellYear = year, cellMonth = month, day = dayOffset, muted = false;
+      if (day < 1) { cellMonth--; if (cellMonth < 0) { cellMonth = 11; cellYear--; } day = prevDays + day; muted = true; }
+      else if (day > daysInMonth) { day -= daysInMonth; cellMonth++; if (cellMonth > 11) { cellMonth = 0; cellYear++; } muted = true; }
+
+      const key = cellYear + "-" + String(cellMonth + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = day;
+      if (muted) button.classList.add("is-muted");
+      const available = availableReportDates.includes(key);
+      if (available) button.classList.add("is-available");
+      if (key === els.reportDate.value) button.classList.add("is-selected");
+      const todayKey = dateKeyFromValue(new Date());
+      if (key === todayKey) button.classList.add("is-today");
+      button.disabled = !available;
+      if (available) {
+        button.addEventListener("click", () => {
+          els.reportDate.value = key;
+          els.datePickerValue.textContent = formatPickerDate(key);
+          els.processBtn.disabled = false;
+          els.datePickerPopover.classList.add("hidden");
+          els.datePickerButton.setAttribute("aria-expanded", "false");
+          renderCalendar();
+        });
+      }
+      els.calendarGrid.appendChild(button);
+    }
+  }
+
+  function shiftCalendar(months) {
+    calendarCursor = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + months, 1);
+    renderCalendar();
+  }
+
+  function closeCalendar() {
+    els.datePickerPopover.classList.add("hidden");
+    els.datePickerButton.setAttribute("aria-expanded", "false");
   }
 
   function processSelectedDate() {
@@ -629,7 +700,30 @@
 
   function bindEvents() {
     els.fileInput.addEventListener("change", e => e.target.files?.[0] && handleFile(e.target.files[0]));
-    els.reportDate.addEventListener("change", () => { els.processBtn.disabled = !els.reportDate.value; });
+    els.datePickerButton.addEventListener("click", () => {
+      const open = !els.datePickerPopover.classList.contains("hidden");
+      if (open) closeCalendar();
+      else {
+        els.datePickerPopover.classList.remove("hidden");
+        els.datePickerButton.setAttribute("aria-expanded", "true");
+        renderCalendar();
+      }
+    });
+    els.calendarPrev.addEventListener("click", () => shiftCalendar(-1));
+    els.calendarNext.addEventListener("click", () => shiftCalendar(1));
+    els.calendarToday.addEventListener("click", () => {
+      const todayKey = dateKeyFromValue(new Date());
+      if (availableReportDates.includes(todayKey)) {
+        els.reportDate.value = todayKey;
+        els.datePickerValue.textContent = formatPickerDate(todayKey);
+        els.processBtn.disabled = false;
+      }
+      calendarCursor = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      renderCalendar();
+    });
+    document.addEventListener("click", event => {
+      if (!els.datePickerPopover.contains(event.target) && !els.datePickerButton.contains(event.target)) closeCalendar();
+    });
     els.processBtn.addEventListener("click", processSelectedDate);
     els.dropzone.addEventListener("dragover", e => {
       e.preventDefault();
