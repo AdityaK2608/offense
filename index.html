@@ -41,9 +41,37 @@
           <h3>Select the offense date</h3>
           <p>Choose the <strong>Created on</strong> date for the data you want to process.</p>
         </div>
-        <div class="date-selection-controls">
-          <input id="reportDate" type="date" aria-label="Select report date">
-          <button id="processBtn" type="button" class="primary-btn" disabled>Process Data</button>
+        <div class="date-picker-area">
+          <input id="reportDate" type="hidden" aria-hidden="true">
+          <button id="datePickerButton" type="button" class="date-picker-trigger" aria-haspopup="dialog" aria-expanded="false">
+            <span class="date-picker-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4.5 9.5h15M6.5 5h11A2.5 2.5 0 0 1 20 7.5v11A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5v-11A2.5 2.5 0 0 1 6.5 5Z"/></svg>
+            </span>
+            <span class="date-picker-trigger-copy">
+              <span class="date-picker-label">Report date</span>
+              <strong id="datePickerValue">Select a date</strong>
+            </span>
+            <span class="date-picker-chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div id="datePickerPopover" class="date-picker-popover hidden" role="dialog" aria-label="Select report date">
+            <div class="calendar-head">
+              <button id="calendarPrev" type="button" class="calendar-nav" aria-label="Previous month">‹</button>
+              <div>
+                <div id="calendarMonth" class="calendar-month"></div>
+                <div id="calendarHint" class="calendar-hint">Available dates from the workbook</div>
+              </div>
+              <button id="calendarNext" type="button" class="calendar-nav" aria-label="Next month">›</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+            </div>
+            <div id="calendarGrid" class="calendar-grid"></div>
+            <div class="calendar-footer">
+              <span class="calendar-legend"><i></i> Available in workbook</span>
+              <button id="calendarToday" type="button" class="calendar-today">Today</button>
+            </div>
+          </div>
+          <button id="processBtn" type="button" class="primary-btn process-date-btn" disabled>Process Data</button>
         </div>
         <div id="dateSelectionStatus" class="date-selection-status"></div>
       </div>
