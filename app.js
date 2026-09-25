@@ -611,7 +611,7 @@
       if (!workbook.SheetNames?.length) throw new Error("No sheets found in workbook.");
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       if (!sheet) throw new Error("Unable to read the first worksheet.");
-      rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+      rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: true });
       if (!rawRows.length) throw new Error("The workbook is empty.");
       if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "subject")) throw new Error('Required column "subject" was not found.');
       if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "created on")) throw new Error('Required column "Created on" was not found.');
