@@ -56,17 +56,36 @@
     return key ? clean(row[key]) : "";
   }
 
-  function formatExcelDateValue(value) {
+  const SOURCE_DATE_FORMAT = "m/d/yyyy h:mm:ss AM/PM";
+
+  function toExcelDateValue(value) {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
     const text = clean(value);
-    if (!text || !/^\d+(?:\.\d+)?$/.test(text)) return text;
-    const serial = Number(text);
-    if (!(serial > 0 && serial < 100000) || typeof XLSX === "undefined" || !XLSX.SSF?.parse_date_code) return text;
-    const parsed = XLSX.SSF.parse_date_code(serial);
-    if (!parsed || !parsed.y || !parsed.m || !parsed.d) return text;
-    const date = String(parsed.d).padStart(2, "0") + "/" + String(parsed.m).padStart(2, "0") + "/" + parsed.y;
-    const hasTime = parsed.H || parsed.M || parsed.S;
-    if (!hasTime) return date;
-    return date + " " + String(parsed.H).padStart(2, "0") + ":" + String(parsed.M).padStart(2, "0") + ":" + String(parsed.S).padStart(2, "0");
+    if (!text) return "";
+
+    if (/^\d+(?:\.\d+)?$/.test(text)) {
+      const serial = Number(text);
+      if (serial > 0 && serial < 100000 && typeof XLSX !== "undefined" && XLSX.SSF?.parse_date_code) {
+        const parsed = XLSX.SSF.parse_date_code(serial);
+        if (parsed?.y && parsed?.m && parsed?.d) {
+          return new Date(parsed.y, parsed.m - 1, parsed.d, parsed.H || 0, parsed.M || 0, parsed.S || 0);
+        }
+      }
+    }
+
+    const parsed = new Date(text);
+    return Number.isNaN(parsed.getTime()) ? text : parsed;
+  }
+
+  function formatDateForDisplay(value) {
+    const date = toExcelDateValue(value);
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return clean(value);
+    let hours = date.getHours();
+    const suffix = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12;
+    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() +
+      " " + hours + ":" + String(date.getMinutes()).padStart(2, "0") + ":" + String(date.getSeconds()).padStart(2, "0") +
+      " " + suffix;
   }
 
   function extractClassification(subject) {
@@ -124,7 +143,7 @@
       const subject = sourceValue(row, "subject");
       return {
         "Tickets#": sourceValue(row, "Tickets#"),
-        "Created on": formatExcelDateValue(sourceValue(row, "Created on")),
+        "Created on": toExcelDateValue(sourceValue(row, "Created on")),
         "Department": sourceValue(row, "Department"),
         "Prioritytitle": sourceValue(row, "Prioritytitle"),
         "Type": sourceValue(row, "Type"),
@@ -132,7 +151,7 @@
         "Classification": extractClassification(subject),
         "Organization": getOrganization(subject),
         "Wing": sourceValue(row, "Wing"),
-        "Closedon": formatExcelDateValue(sourceValue(row, "Closedon")),
+        "Closedon": toExcelDateValue(sourceValue(row, "Closedon")),
         "resolution_steps": sourceValue(row, "resolution_steps"),
         "Status": sourceValue(row, "Status")
       };
@@ -216,7 +235,7 @@
           input.addEventListener("input", e => { processedRows[rowIndex][header] = e.target.value; });
           td.appendChild(input);
         } else {
-          td.textContent = row[header] || "";
+          td.textContent = (header === "Created on" || header === "Closedon") ? formatDateForDisplay(row[header]) : (row[header] || "");
         }
         tr.appendChild(td);
       });
@@ -471,6 +490,12 @@
 
     const workbook = XLSX.utils.book_new();
     const offenseSheet = XLSX.utils.json_to_sheet(processedRows);
+    ["B", "J"].forEach(col => {
+      for (let r = 2; r <= processedRows.length + 1; r++) {
+        const cell = offenseSheet[col + r];
+        if (cell && cell.v instanceof Date) cell.z = SOURCE_DATE_FORMAT;
+      }
+    });
     offenseSheet["!freeze"] = { xSplit: 0, ySplit: 1 };
     offenseSheet["!autofilter"] = { ref: offenseSheet["!ref"] };
     offenseSheet["!cols"] = OUTPUT_COLUMNS.map(h => ({ wch: COLUMN_WIDTHS[h] || 18 }));
