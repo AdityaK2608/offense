@@ -35,13 +35,47 @@ button,input{font:inherit}
 .primary-btn:hover{transform:translateY(-1px);background:#12386f}
 .secondary-btn{border:1px solid var(--navy);background:var(--navy);color:#fff}
 .secondary-btn:hover{transform:translateY(-1px);background:#12386f}
-.date-selection{margin-top:14px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:15px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-.date-selection-copy h3{margin:4px 0 4px;font-size:12px}
-.date-selection-copy p{margin:0;color:var(--muted);font-size:9px;line-height:1.5}
-.date-selection-controls{display:flex;align-items:center;gap:7px}
-.date-selection-controls input{height:34px;border:1px solid #d8dee8;border-radius:8px;padding:0 9px;font-size:10px;color:var(--ink);background:#fff;outline:0}
-.date-selection-controls input:focus{border-color:#7d8ca6;box-shadow:0 0 0 3px #7d8ca620}
+.date-selection{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,#fff 0%,#fcfdff 100%);padding:18px;display:grid;grid-template-columns:minmax(240px,1fr) minmax(300px,390px);gap:16px 24px;align-items:center;box-shadow:0 10px 30px rgba(15,31,58,.045)}
+.date-selection-copy h3{margin:5px 0 5px;font-size:13px;letter-spacing:-.02em}
+.date-selection-copy p{margin:0;color:var(--muted);font-size:9px;line-height:1.55}
+.date-picker-area{position:relative;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.date-picker-trigger{height:52px;width:100%;border:1px solid #dfe4ec;border-radius:11px;background:#fff;display:flex;align-items:center;gap:11px;padding:0 13px;text-align:left;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(15,31,58,.04);transition:border-color .18s,box-shadow .18s,transform .18s}
+.date-picker-trigger:hover{border-color:#b9c3d3;box-shadow:0 7px 20px rgba(15,31,58,.07);transform:translateY(-1px)}
+.date-picker-trigger:focus-visible{outline:0;border-color:#7d8ca6;box-shadow:0 0 0 4px rgba(11,42,91,.08)}
+.date-picker-icon{width:30px;height:30px;border-radius:8px;background:#f0f3f7;color:var(--navy);display:grid;place-items:center;flex:0 0 30px}
+.date-picker-icon svg{width:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.date-picker-trigger-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+.date-picker-label{font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9099a8}
+.date-picker-trigger-copy strong{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.date-picker-chevron{margin-left:auto;color:#8b94a4;font-size:17px;line-height:1;transform:translateY(-1px)}
+.process-date-btn{height:52px;white-space:nowrap;padding:0 16px}
+.date-picker-popover{position:absolute;right:0;top:60px;width:318px;background:#fff;border:1px solid #dde3eb;border-radius:14px;padding:14px;z-index:30;box-shadow:0 18px 50px rgba(15,31,58,.16);animation:calendarIn .14s ease-out}
+@keyframes calendarIn{from{opacity:0;transform:translateY(-5px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+.calendar-head{display:grid;grid-template-columns:32px 1fr 32px;align-items:center;gap:8px;margin-bottom:13px}
+.calendar-head>div{text-align:center}
+.calendar-month{font-size:12px;font-weight:700;letter-spacing:-.02em}
+.calendar-hint{font-size:8px;color:#9aa2af;margin-top:3px}
+.calendar-nav{width:32px;height:32px;border:1px solid #e2e6ed;background:#fafbfc;color:#4b5563;border-radius:8px;font-size:20px;line-height:1;cursor:pointer}
+.calendar-nav:hover{background:#f1f4f8;color:var(--navy);border-color:#d3dae5}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-weekdays{margin-bottom:5px}
+.calendar-weekdays span{text-align:center;color:#9aa2af;font-size:8px;font-weight:700;padding:4px 0}
+.calendar-grid button{height:34px;border:0;background:transparent;border-radius:8px;color:#4b5563;font-size:9px;font-weight:600;cursor:pointer;transition:background .12s,color .12s,transform .12s}
+.calendar-grid button:hover:not(:disabled){background:#eef2f7;color:var(--navy);transform:translateY(-1px)}
+.calendar-grid button.is-muted{color:#c6ccd5;font-weight:500}
+.calendar-grid button.is-available{position:relative}
+.calendar-grid button.is-available::after{content:"";position:absolute;bottom:4px;left:50%;width:3px;height:3px;border-radius:50%;background:#0b2a5b;transform:translateX(-50%)}
+.calendar-grid button.is-selected{background:var(--navy);color:#fff}
+.calendar-grid button.is-selected::after{background:#fff}
+.calendar-grid button.is-today{box-shadow:inset 0 0 0 1px #c5ccd8}
+.calendar-grid button:disabled{cursor:default;opacity:.4}
+.calendar-footer{display:flex;align-items:center;justify-content:space-between;border-top:1px solid #edf0f4;margin-top:10px;padding-top:10px}
+.calendar-legend{font-size:8px;color:#9099a8;display:flex;align-items:center;gap:6px}
+.calendar-legend i{width:5px;height:5px;border-radius:50%;background:var(--navy)}
+.calendar-today{border:0;background:transparent;color:var(--navy);font-size:9px;font-weight:700;cursor:pointer;padding:4px}
+.calendar-today:hover{text-decoration:underline}
 .date-selection-status{grid-column:1/-1;color:#8b94a4;font-size:9px;min-height:12px}
+
 .file-name{width:100%;color:#8b94a4;font-size:9px;min-height:13px;text-align:center;border-top:1px solid var(--line);padding-top:9px;margin-top:2px}
 
 .results{margin-top:20px}
@@ -93,8 +127,9 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
   .shell{padding:16px 12px 28px}
   .upload-card{grid-template-columns:1fr}
   .date-selection{grid-template-columns:1fr}
-  .date-selection-controls{justify-content:flex-start;flex-wrap:wrap}
-  .dropzone{min-height:135px}
+  .date-picker-area{grid-template-columns:1fr}
+  .date-picker-popover{position:absolute;left:0;right:auto;width:min(318px,calc(100vw - 48px))}
+    .dropzone{min-height:135px}
   .panel-head{align-items:flex-start;flex-direction:column}
   .actions{justify-content:flex-start}
 }
