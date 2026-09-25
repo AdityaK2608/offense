@@ -56,6 +56,19 @@
     return key ? clean(row[key]) : "";
   }
 
+  function formatExcelDateValue(value) {
+    const text = clean(value);
+    if (!text || !/^\\d+(?:\\.\\d+)?$/.test(text)) return text;
+    const serial = Number(text);
+    if (!(serial > 0 && serial < 100000) || typeof XLSX === "undefined" || !XLSX.SSF?.parse_date_code) return text;
+    const parsed = XLSX.SSF.parse_date_code(serial);
+    if (!parsed || !parsed.y || !parsed.m || !parsed.d) return text;
+    const date = String(parsed.d).padStart(2, "0") + "/" + String(parsed.m).padStart(2, "0") + "/" + parsed.y;
+    const hasTime = parsed.H || parsed.M || parsed.S;
+    if (!hasTime) return date;
+    return date + " " + String(parsed.H).padStart(2, "0") + ":" + String(parsed.M).padStart(2, "0") + ":" + String(parsed.S).padStart(2, "0");
+  }
+
   function extractClassification(subject) {
     const match = clean(subject).match(/Domain:\s*([^|]*)/i);
     return match ? clean(match[1]) || "NABFID DC" : "NABFID DC";
@@ -92,7 +105,7 @@
       const subject = sourceValue(row, "subject");
       return {
         "Tickets#": sourceValue(row, "Tickets#"),
-        "Created on": sourceValue(row, "Created on"),
+        "Created on": formatExcelDateValue(sourceValue(row, "Created on")),
         "Department": sourceValue(row, "Department"),
         "Prioritytitle": sourceValue(row, "Prioritytitle"),
         "Type": sourceValue(row, "Type"),
@@ -100,7 +113,7 @@
         "Classification": extractClassification(subject),
         "Organization": getOrganization(subject),
         "Wing": sourceValue(row, "Wing"),
-        "Closedon": sourceValue(row, "Closedon"),
+        "Closedon": formatExcelDateValue(sourceValue(row, "Closedon")),
         "resolution_steps": sourceValue(row, "resolution_steps"),
         "Status": sourceValue(row, "Status")
       };
