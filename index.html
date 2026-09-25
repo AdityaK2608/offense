@@ -34,6 +34,19 @@
         </div>
         <div id="fileName" class="file-name">No file selected</div>
       </div>
+
+      <div id="dateSelection" class="date-selection hidden">
+        <div class="date-selection-copy">
+          <div class="eyebrow">REPORT DATE</div>
+          <h3>Select the offense date</h3>
+          <p>Choose the <strong>Created on</strong> date for the data you want to process.</p>
+        </div>
+        <div class="date-selection-controls">
+          <input id="reportDate" type="date" aria-label="Select report date">
+          <button id="processBtn" type="button" class="primary-btn" disabled>Process Data</button>
+        </div>
+        <div id="dateSelectionStatus" class="date-selection-status"></div>
+      </div>
     </section>
 
     <section id="resultSection" class="hidden results">
@@ -91,6 +104,6 @@
       </section>
     </section>
   </main>
-  <script src="app.js?v=26"></script>
+  <script src="app.js?v=27"></script>
 </body>
 </html>
