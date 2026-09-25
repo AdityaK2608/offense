@@ -16,12 +16,22 @@
   };
   const SUMMARY_HEADERS = ["Client", "Closed", "Pending on COE", "Pending On Customer", "Grand Total"];
   const EXCEL_FONT = "Inter";
+  const EXCLUDED_NABFID_RULES = [
+    "DNR- NABFID CCIL Log Sources not reporting to SIEM",
+    "TEST_DNR_NABfid_Devices not reporting to SIEM",
+    "TEST_DNR- NABFID KPMG Log Sources not reporting to SIEM",
+    "NABFID EV devices not working",
+    "NABFID KPMG devices not reporting"
+  ];
   const $ = id => document.getElementById(id);
+  let rawRows = [];
   let processedRows = [];
+  let selectedReportDate = "";
 
   const els = {
     fileInput: $("fileInput"), dropzone: $("dropzone"), fileName: $("fileName"),
-    resultSection: $("resultSection"), previewBtn: $("previewBtn"), editBtn: $("editBtn"),
+    dateSelection: $("dateSelection"), reportDate: $("reportDate"), processBtn: $("processBtn"),
+    dateSelectionStatus: $("dateSelectionStatus"), resultSection: $("resultSection"), previewBtn: $("previewBtn"), editBtn: $("editBtn"),
     copyTableBtn: $("copyTableBtn"), downloadBtn: $("downloadBtn"),
     copyEmailBtn: $("copyEmailBtn"), copySubjectBtn: $("copySubjectBtn"),
     emailPreview: $("emailPreview"), dataPanel: $("dataPanel"), dataTitle: $("dataTitle"),
@@ -53,6 +63,23 @@
 
   function getOrganization(subject) {
     return /KPMG/i.test(clean(subject)) ? ORGANIZATIONS.kpmg : ORGANIZATIONS.default;
+  }
+
+  function normalizeRule(value) {
+    return clean(value).replace(/\s+/g, " ").replace(/\s*-\s*/g, "-").toLowerCase();
+  }
+
+  function isNabfidRecord(row) {
+    return /nabfid/i.test(sourceValue(row, "subject")) || /nabfid/i.test(sourceValue(row, "Organization"));
+  }
+
+  function isExcludedNabfidRule(row) {
+    const normalized = normalizeRule(sourceValue(row, "RuleName"));
+    return EXCLUDED_NABFID_RULES.some(rule => normalizeRule(rule) === normalized);
+  }
+
+  function isBlankResolution(row) {
+    return !clean(sourceValue(row, "resolution_steps"));
   }
 
   function processSheet(rows) {
@@ -468,38 +495,91 @@
     requestAnimationFrame(() => els.dataPanel.scrollIntoView({ behavior: "smooth", block: "start" }));
   }
 
+  function dateKeyFromValue(value) {
+    const parts = parseCreatedDateParts(value);
+    return parts ? [parts.year, String(parts.month).padStart(2, "0"), String(parts.day).padStart(2, "0")].join("-") : "";
+  }
+
+  function resetForNewUpload() {
+    rawRows = [];
+    processedRows = [];
+    selectedReportDate = "";
+    els.reportDate.value = "";
+    els.processBtn.disabled = true;
+    els.dateSelectionStatus.textContent = "";
+    els.dateSelection.classList.add("hidden");
+    els.resultSection.classList.add("hidden");
+    els.dataPanel.classList.add("hidden");
+  }
+
+  function showDateSelection(rows) {
+    const dates = [...new Set(rows.map(row => dateKeyFromValue(sourceValue(row, "Created on"))).filter(Boolean))].sort();
+    if (!dates.length) throw new Error('No valid dates were found in the "Created on" column.');
+    els.reportDate.min = dates[0];
+    els.reportDate.max = dates[dates.length - 1];
+    els.reportDate.value = "";
+    els.processBtn.disabled = true;
+    els.dateSelectionStatus.textContent = dates.length + " date" + (dates.length === 1 ? "" : "s") + " available in the workbook.";
+    els.dateSelection.classList.remove("hidden");
+  }
+
+  function processSelectedDate() {
+    const date = clean(els.reportDate.value);
+    if (!date) return alert("Please select a report date first.");
+    selectedReportDate = date;
+    const dateRows = rawRows.filter(row => dateKeyFromValue(sourceValue(row, "Created on")) === date);
+    const nabfidRows = dateRows.filter(isNabfidRecord);
+    const excludedRuleRows = nabfidRows.filter(isExcludedNabfidRule).length;
+    const blankResolutionRows = nabfidRows.filter(row => !isExcludedNabfidRule(row) && isBlankResolution(row)).length;
+    const eligibleRows = nabfidRows.filter(row => !isExcludedNabfidRule(row) && !isBlankResolution(row));
+
+    if (!eligibleRows.length) {
+      processedRows = [];
+      els.resultSection.classList.add("hidden");
+      els.dateSelectionStatus.textContent = "No eligible NaBFID records found for the selected date.";
+      return;
+    }
+    processedRows = processSheet(eligibleRows);
+    renderSummary();
+    els.fileName.textContent = "Processed: " + processedRows.length + " NaBFID records for " + formatEmailDate(processedRows[0]["Created on"]);
+    els.dateSelectionStatus.textContent = processedRows.length + " records selected • " + excludedRuleRows + " excluded by rule • " + blankResolutionRows + " excluded with blank resolution steps.";
+    els.resultSection.classList.remove("hidden");
+    els.dataPanel.classList.add("hidden");
+    requestAnimationFrame(() => els.resultSection.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+
   async function handleFile(file) {
     if (!file) return;
     const ext = file.name.split(".").pop().toLowerCase();
     if (!["xlsx", "xls"].includes(ext)) return alert("Please choose an Excel file (.xlsx or .xls).");
     if (typeof XLSX === "undefined") return alert("Excel engine is not loaded. Please refresh the page and try again.");
-
-    els.fileName.textContent = "Processing: " + file.name;
+    resetForNewUpload();
+    els.fileName.textContent = "Reading: " + file.name;
     try {
-      const workbook = XLSX.read(await file.arrayBuffer(), {
-        type: "array", cellDates: false, cellNF: true, cellText: true
-      });
+      const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: false, cellNF: true, cellText: true });
       if (!workbook.SheetNames?.length) throw new Error("No sheets found in workbook.");
-
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       if (!sheet) throw new Error("Unable to read the first worksheet.");
-
-      processedRows = processSheet(XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false }));
-      renderSummary();
-      els.fileName.textContent = "Processed: " + file.name + " • " + processedRows.length + " records";
-      els.resultSection.classList.remove("hidden");
-      els.dataPanel.classList.add("hidden");
-      requestAnimationFrame(() => els.resultSection.scrollIntoView({ behavior: "smooth", block: "start" }));
+      rawRows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+      if (!rawRows.length) throw new Error("The workbook is empty.");
+      if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "subject")) throw new Error('Required column "subject" was not found.');
+      if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "created on")) throw new Error('Required column "Created on" was not found.');
+      if (!Object.keys(rawRows[0]).some(h => clean(h).toLowerCase() === "resolution_steps")) throw new Error('Required column "resolution_steps" was not found.');
+      showDateSelection(rawRows);
+      els.fileName.textContent = "Ready: " + file.name + " • " + rawRows.length + " raw records";
+      requestAnimationFrame(() => els.dateSelection.scrollIntoView({ behavior: "smooth", block: "center" }));
     } catch (error) {
-      processedRows = [];
+      resetForNewUpload();
       console.error("Offense Processor:", error);
       els.fileName.textContent = "Processing failed: " + file.name;
-      alert("Could not process file: " + (error?.message || error));
+      alert("Could not read file: " + (error?.message || error));
     }
   }
 
   function bindEvents() {
     els.fileInput.addEventListener("change", e => e.target.files?.[0] && handleFile(e.target.files[0]));
+    els.reportDate.addEventListener("change", () => { els.processBtn.disabled = !els.reportDate.value; });
+    els.processBtn.addEventListener("click", processSelectedDate);
     els.dropzone.addEventListener("dragover", e => {
       e.preventDefault();
       els.dropzone.classList.add("drop-active");
