@@ -58,7 +58,7 @@
 
   function formatExcelDateValue(value) {
     const text = clean(value);
-    if (!text || !/^\\d+(?:\\.\\d+)?$/.test(text)) return text;
+    if (!text || !/^\d+(?:\.\d+)?$/.test(text)) return text;
     const serial = Number(text);
     if (!(serial > 0 && serial < 100000) || typeof XLSX === "undefined" || !XLSX.SSF?.parse_date_code) return text;
     const parsed = XLSX.SSF.parse_date_code(serial);
