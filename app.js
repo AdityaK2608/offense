@@ -87,11 +87,8 @@
   }
 
   function extractRuleName(row) {
-    const direct = sourceValue(row, "RuleName");
-    if (direct) return direct;
-
-    // In the source workbook, RuleName may be embedded inside the subject
-    // as: "Domain: ...|Offence_ID: ...|RuleName: <rule>".
+    // RuleName is always embedded in the subject:
+    // "Domain: ...|Offence_ID: ...|RuleName: <rule>"
     const subject = sourceValue(row, "subject");
     const match = subject.match(/(?:^|\|)\s*RuleName\s*:\s*([^|]*)/i);
     return match ? clean(match[1]) : "";
