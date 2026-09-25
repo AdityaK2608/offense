@@ -16,12 +16,10 @@
   };
   const SUMMARY_HEADERS = ["Client", "Closed", "Pending on COE", "Pending On Customer", "Grand Total"];
   const EXCEL_FONT = "Inter";
-  const EXCLUDED_NABFID_RULES = [
-    "DNR- NABFID CCIL Log Sources not reporting to SIEM",
-    "TEST_DNR_NABfid_Devices not reporting to SIEM",
-    "TEST_DNR- NABFID KPMG Log Sources not reporting to SIEM",
-    "NABFID EV devices not working",
-    "NABFID KPMG devices not reporting"
+  const EXCLUDED_SUBJECT_PATTERNS = [
+    /not\s+reporting/i,
+    /devices\s+not\s+working/i,
+    /devices\s+not\s+reporting/i
   ];
   const $ = id => document.getElementById(id);
   let rawRows = [];
@@ -118,15 +116,11 @@
   }
 
   function isExcludedNabfidRule(row) {
-    const normalized = normalizeRule(extractRuleName(row));
-    if (!normalized) return false;
+    const subject = sourceValue(row, "subject");
+    if (!subject) return false;
 
-    return EXCLUDED_NABFID_RULES.some(rule => {
-      const excluded = normalizeRule(rule);
-      return normalized === excluded ||
-        normalized.includes(excluded) ||
-        excluded.includes(normalized);
-    });
+    // Exclude any NaBFID subject containing these operational phrases.
+    return EXCLUDED_SUBJECT_PATTERNS.some(pattern => pattern.test(subject));
   }
 
   function isBlankResolution(row) {
