@@ -88,7 +88,11 @@
 
   function isExcludedNabfidRule(row) {
     const normalized = normalizeRule(sourceValue(row, "RuleName"));
-    return EXCLUDED_NABFID_RULES.some(rule => normalizeRule(rule) === normalized);
+    if (!normalized) return false;
+    return EXCLUDED_NABFID_RULES.some(rule => {
+      const excluded = normalizeRule(rule);
+      return normalized === excluded || normalized.includes(excluded) || excluded.includes(normalized);
+    });
   }
 
   function isBlankResolution(row) {
