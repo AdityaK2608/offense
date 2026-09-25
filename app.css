@@ -35,6 +35,13 @@ button,input{font:inherit}
 .primary-btn:hover{transform:translateY(-1px);background:#12386f}
 .secondary-btn{border:1px solid var(--navy);background:var(--navy);color:#fff}
 .secondary-btn:hover{transform:translateY(-1px);background:#12386f}
+.date-selection{margin-top:14px;border:1px solid var(--line);border-radius:11px;background:#fff;padding:15px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.date-selection-copy h3{margin:4px 0 4px;font-size:12px}
+.date-selection-copy p{margin:0;color:var(--muted);font-size:9px;line-height:1.5}
+.date-selection-controls{display:flex;align-items:center;gap:7px}
+.date-selection-controls input{height:34px;border:1px solid #d8dee8;border-radius:8px;padding:0 9px;font-size:10px;color:var(--ink);background:#fff;outline:0}
+.date-selection-controls input:focus{border-color:#7d8ca6;box-shadow:0 0 0 3px #7d8ca620}
+.date-selection-status{grid-column:1/-1;color:#8b94a4;font-size:9px;min-height:12px}
 .file-name{width:100%;color:#8b94a4;font-size:9px;min-height:13px;text-align:center;border-top:1px solid var(--line);padding-top:9px;margin-top:2px}
 
 .results{margin-top:20px}
@@ -85,6 +92,8 @@ td{padding:10px 12px;border:1px solid #202020;white-space:nowrap;color:#4e5665;t
 @media(max-width:800px){
   .shell{padding:16px 12px 28px}
   .upload-card{grid-template-columns:1fr}
+  .date-selection{grid-template-columns:1fr}
+  .date-selection-controls{justify-content:flex-start;flex-wrap:wrap}
   .dropzone{min-height:135px}
   .panel-head{align-items:flex-start;flex-direction:column}
   .actions{justify-content:flex-start}
