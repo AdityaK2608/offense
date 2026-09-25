@@ -56,7 +56,7 @@
     return key ? clean(row[key]) : "";
   }
 
-  const SOURCE_DATE_FORMAT = "m/d/yyyy h:mm:ss AM/PM";
+  const SOURCE_DATE_FORMAT = "d-m-yyyy h:mm:ss AM/PM";
 
   function toExcelDateValue(value) {
     if (value instanceof Date && !Number.isNaN(value.getTime())) return value;
@@ -83,7 +83,7 @@
     let hours = date.getHours();
     const suffix = hours >= 12 ? "PM" : "AM";
     hours = hours % 12 || 12;
-    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear() +
+    return date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear() +
       " " + hours + ":" + String(date.getMinutes()).padStart(2, "0") + ":" + String(date.getSeconds()).padStart(2, "0") +
       " " + suffix;
   }
