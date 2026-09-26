@@ -11,7 +11,6 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .brand{display:flex;align-items:center;gap:10px}
 .brand:before{content:"";width:7px;height:27px;border-radius:4px;background:var(--navy)}
 .brand h1{margin:0;font-size:19px;font-weight:800;letter-spacing:-.035em}
-.topbar:after{content:"Daily offense reporting";margin-left:auto;color:#7b8798;font-size:10px;font-weight:600;letter-spacing:.03em}
 .upload-card,.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 4px 18px rgba(17,34,68,.035)}
 .upload-card{padding:24px;display:grid;grid-template-columns:.9fr 1.1fr;gap:24px 32px;align-items:center}
 .upload-copy{padding:4px 0}
@@ -92,4 +91,5 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .data-scroll input{border:1px solid #d8dfe9;border-radius:7px;padding:7px;width:100%;font-size:11px}
 @media(max-width:800px){.date-selection-status{grid-column:1}.shell{padding:18px 14px 32px}.topbar:after{display:none}.upload-card{grid-template-columns:1fr;padding:20px}.date-selection{grid-column:auto;grid-template-columns:1fr;padding-top:18px}.date-picker-area{grid-template-columns:1fr}.process-date-btn{width:100%}.date-picker-popover{left:0;right:auto;width:min(350px,calc(100vw - 42px))}.panel-head{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.review-actions{justify-content:flex-start}}
 @media(max-width:480px){.upload-card{padding:16px}.upload-copy h2{font-size:23px}.email-preview{padding:18px 14px}.review-scroll input{width:160px}.review-scroll textarea{width:270px}}
-.review-scroll input.input-invalid{border-color:#c97870;background:#fff7f6;box-shadow:0 0 0 2px rgba(180,35,24,.06)}
+
+.review-scroll th.current-col{background:#46566d}.review-scroll th.update-col{background:#0b2a5b}.review-scroll td:nth-child(4),.review-scroll td:nth-child(5){background:#f6f8fb;color:#5f6b7d}.review-scroll td:nth-child(6),.review-scroll td:nth-child(7),.review-scroll td:nth-child(8),.review-scroll td:nth-child(9){background:#fff}.review-scroll input.input-invalid,.review-scroll textarea.input-invalid{border-color:#c97870;background:#fff7f6;box-shadow:0 0 0 2px rgba(180,35,24,.06)}.derived-cell{background:#f6f8fb;color:#697386;font-weight:600;white-space:nowrap}
