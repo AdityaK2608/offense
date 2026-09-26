@@ -132,6 +132,10 @@
     return !clean(sourceValue(row, "resolution_steps"));
   }
 
+  function isSocAlert(row) {
+    return clean(sourceValue(row, "Type")).toLowerCase() === "soc alert";
+  }
+
   function processSheet(rows) {
     if (!rows.length) throw new Error("The workbook is empty.");
     if (!Object.keys(rows[0]).some(h => clean(h).toLowerCase() === "subject")) {
@@ -145,7 +149,7 @@
         "Created on": toExcelDateValue(sourceValue(row, "Created on")),
         "Department": sourceValue(row, "Department"),
         "Prioritytitle": sourceValue(row, "Prioritytitle"),
-        "Type": sourceValue(row, "Type"),
+        "Type": "SOC Alert",
         subject,
         "Classification": extractClassification(subject),
         "Organization": getOrganization(subject),
@@ -651,9 +655,10 @@
     selectedReportDate = date;
     const dateRows = rawRows.filter(row => dateKeyFromValue(sourceValue(row, "Created on")) === date);
     const nabfidRows = dateRows.filter(isNabfidRecord);
-    const excludedRuleRows = nabfidRows.filter(isExcludedNabfidRule).length;
-    const blankResolutionRows = nabfidRows.filter(row => !isExcludedNabfidRule(row) && isBlankResolution(row)).length;
-    const eligibleRows = nabfidRows.filter(row => !isExcludedNabfidRule(row) && !isBlankResolution(row));
+    const socAlertRows = nabfidRows.filter(isSocAlert);
+    const excludedRuleRows = socAlertRows.filter(isExcludedNabfidRule).length;
+    const blankResolutionRows = socAlertRows.filter(row => !isExcludedNabfidRule(row) && isBlankResolution(row)).length;
+    const eligibleRows = socAlertRows.filter(row => !isExcludedNabfidRule(row) && !isBlankResolution(row));
 
     if (!eligibleRows.length) {
       processedRows = [];
