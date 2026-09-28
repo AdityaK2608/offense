@@ -29,8 +29,8 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .primary-btn,.secondary-btn{border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:-.01em}
 .primary-btn{border:1px solid var(--navy);background:var(--navy);color:#fff;box-shadow:0 3px 9px rgba(11,42,91,.12)}
 .primary-btn:hover{background:var(--navy-2);transform:translateY(-1px);box-shadow:0 5px 12px rgba(11,42,91,.16)}
-.secondary-btn{border:1px solid #cbd5e1;background:#fff;color:#1d4ed8;box-shadow:none;min-height:38px;padding:8px 13px;border-radius:8px}
-.secondary-btn:hover{background:#eff6ff;border-color:#93c5fd;transform:translateY(-1px)}
+.secondary-btn{border:1px solid var(--navy);background:var(--navy);color:#fff;box-shadow:0 3px 9px rgba(11,42,91,.12);min-height:38px;padding:8px 13px;border-radius:8px}
+.secondary-btn:hover{background:var(--navy-2);border-color:var(--navy-2);transform:translateY(-1px);box-shadow:0 5px 12px rgba(11,42,91,.16)}
 .file-name{width:100%;color:#7f8999;font-size:12px;min-height:15px;border-top:1px solid var(--line);padding-top:9px;margin-top:1px}
 .date-selection{grid-column:1/-1;width:100%;margin-top:0;border-top:1px solid var(--line);padding:18px 2px 2px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px 22px;align-items:center}
 .date-selection-copy{padding:2px 0 2px 2px}
