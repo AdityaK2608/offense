@@ -42,7 +42,7 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .date-picker-trigger-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
 .date-picker-trigger-copy strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
 .date-picker-label{font-size:12px;font-weight:800;letter-spacing:.05em;color:#7b879a}
-.date-picker-chevron{margin-left:auto;color:#52647e;font-size:13px}
+.date-picker-chevron{display:none}
 .process-date-btn{height:52px;white-space:nowrap;border-radius:10px;font-weight:800;font-size:12px;box-shadow:0 5px 14px rgba(30,58,138,.14)}
 .date-picker-popover{position:absolute;left:0;top:72px;width:min(520px,100%);background:#fff;border:1px solid #dbe4f0;border-radius:14px;padding:16px;z-index:100;box-shadow:0 22px 50px rgba(15,31,58,.16)}
 .date-options-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px 12px;border-bottom:1px solid #edf0f4}
