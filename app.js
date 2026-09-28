@@ -31,8 +31,63 @@ function closeCal(){el.datePickerPopover.classList.add("hidden");el.datePickerBu
 function eligibleCreated(d){return createdRows.filter(r=>key(val(r,"Created on"))===d).filter(nab).filter(soc).filter(r=>!excluded(r))}
 function eligibleClosed(d){return closedRows.filter(r=>key(val(r,"Created on"))===d).filter(nab).filter(soc).filter(r=>!excluded(r)).filter(r=>!!val(r,"resolution_steps"))}
 function processDate(){const d=clean(el.reportDate.value);if(!d)return alert("Please select a report date first.");selectedDate=d;const cr=eligibleCreated(d),cl=eligibleClosed(d),closedIds=new Set(cl.map(r=>val(r,"Tickets#")).filter(Boolean));reviewRows=cr.filter(r=>status(r)!=="closed"&&!closedIds.has(val(r,"Tickets#"))).map(r=>{const o=output(r);o.__original={Status:o.Status,Wing:o.Wing,Closedon:o.Closedon,resolution_steps:o.resolution_steps};o.__updates={};return o;});processedRows=cl.map(output);el.dateSelectionStatus.textContent=(createdRows.length?cr.length+" eligible Created records":"")+" "+(createdRows.length&&closedRows.length?"• ":"")+(closedRows.length?cl.length+" Closed records":"");if(reviewRows.length){renderReview();el.reviewPanel.classList.remove("hidden");el.resultSection.classList.add("hidden");el.reviewPanel.scrollIntoView({behavior:"smooth",block:"start"})}else finalize()}
-function renderReview(){el.reviewCount.textContent=reviewRows.length+" ticket"+(reviewRows.length===1?"":"s")+" require review";el.reviewBody.innerHTML="";reviewRows.forEach((r,index)=>{const tr=document.createElement("tr");for(const v of[r["Tickets#"],displayDate(r["Created on"]),r.subject,r.Status,r.Wing]){const td=document.createElement("td");td.textContent=v;tr.appendChild(td)}const STATUS_OPTIONS=["Closed","Pending on customer","Pending on COE"];const WING_OPTIONS=["False Positive","True Positive - actioned by Teams","True Positive - NO Impact","True Positive Security Incident"];for(const [f,t] of[["Status","select"],["Wing","select"],["Closedon","text"],["resolution_steps","textarea"]]){const td=document.createElement("td"),i=document.createElement(t==="textarea"?"textarea":t==="select"?"select":"input");if(t==="select"){const opts=f==="Status"?STATUS_OPTIONS:WING_OPTIONS;const current=clean(r[f]);if(current&&!opts.some(v=>v.toLowerCase()===current.toLowerCase()))opts.unshift(current);opts.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;o.selected=v.toLowerCase()===current.toLowerCase();i.appendChild(o)});i.onchange=e=>{r.__updates[f]=e.target.value}}if(f==="Closedon"){i.placeholder="Paste date & time, e.g. 25-9-2026 6:24:11 AM";i.value=r[f] instanceof Date&&!isNaN(r[f])?displayDate(r[f]):clean(r[f]);i.onblur=()=>{const raw=clean(i.value);if(!raw){delete r.__updates[f];i.classList.remove("input-invalid");return}const d=parseITSMDate(raw);if(d){r.__updates[f]=d;i.value=displayDate(d);i.classList.remove("input-invalid")}else{i.classList.add("input-invalid")}}}else{i.value=clean(r[f]);i.placeholder=f==="Status"||f==="Wing"?"Leave blank to keep current":"Leave blank to keep existing";i.oninput=e=>{r.__updates[f]=e.target.value}}td.appendChild(i);tr.appendChild(td)}const actionTd=document.createElement("td");const remove=document.createElement("button");remove.type="button";remove.className="review-remove-btn";remove.textContent="Remove";remove.onclick=()=>{reviewRows.splice(index,1);renderReview();if(!reviewRows.length)el.reviewCount.textContent="No tickets require review";};actionTd.appendChild(remove);tr.appendChild(actionTd);el.reviewBody.appendChild(tr)})}
-function mergeReviewRow(r){const out={...r},original=r.__original||{},updates=r.__updates||{};for(const f of["Status","Wing","Closedon","resolution_steps"])out[f]=Object.prototype.hasOwnProperty.call(updates,f)&&clean(updates[f])!==""?updates[f]:original[f]??out[f];delete out.__original;delete out.__updates;return out}
+function closeReviewDropdowns(){document.querySelectorAll(".review-dropdown-menu.is-open").forEach(m=>{m.classList.remove("is-open");m.remove()})}
+function createReviewDropdown(field,current,options,row){
+  const wrap=document.createElement("div");wrap.className="review-dropdown";
+  const button=document.createElement("button");button.type="button";button.className="review-dropdown-trigger";button.setAttribute("aria-haspopup","listbox");button.setAttribute("aria-expanded","false");
+  const label=document.createElement("span");label.className="review-dropdown-value";label.textContent=current||"Select";
+  const icon=document.createElement("span");icon.className="review-dropdown-chevron";icon.textContent="⌄";button.append(label,icon);
+  const open=()=>{
+    closeReviewDropdowns();
+    const menu=document.createElement("div");menu.className="review-dropdown-menu is-open";menu.setAttribute("role","listbox");
+    const rect=button.getBoundingClientRect();const width=Math.max(rect.width,field==="Wing"?260:220);
+    menu.style.width=width+"px";menu.style.left=Math.max(8,Math.min(rect.left,window.innerWidth-width-8))+"px";
+    const below=window.innerHeight-rect.bottom, above=rect.top;
+    menu.style.top=(below>=220||below>=above?rect.bottom+6:Math.max(8,rect.top-Math.min(220,options.length*42+16)-6))+"px";
+    options.forEach(value=>{
+      const item=document.createElement("button");item.type="button";item.className="review-dropdown-option"+(value.toLowerCase()===current.toLowerCase()?" is-selected":"");item.setAttribute("role","option");item.setAttribute("aria-selected",value.toLowerCase()===current.toLowerCase()?"true":"false");
+      const text=document.createElement("span");text.textContent=value;item.appendChild(text);
+      if(value.toLowerCase()===current.toLowerCase()){const check=document.createElement("span");check.className="review-dropdown-check";check.textContent="✓";item.appendChild(check)}
+      item.onclick=e=>{e.stopPropagation();row.__updates[field]=value;label.textContent=value;closeReviewDropdowns()};
+      menu.appendChild(item)
+    });
+    document.body.appendChild(menu);button.setAttribute("aria-expanded","true");
+  };
+  button.onclick=e=>{e.stopPropagation();const openMenu=document.querySelector(".review-dropdown-menu.is-open");if(openMenu){closeReviewDropdowns();button.setAttribute("aria-expanded","false")}else open()};
+  wrap.appendChild(button);return wrap
+}
+function renderReview(){
+  el.reviewCount.textContent=reviewRows.length+" ticket"+(reviewRows.length===1?"":"s")+" require review";el.reviewBody.innerHTML="";
+  reviewRows.forEach((r,index)=>{
+    const tr=document.createElement("tr");
+    [["Tickets#",r["Tickets#"]],["Created on",displayDate(r["Created on"])],["subject",r.subject],["Status",r.Status],["Wing",r.Wing]].forEach(([field,value],pos)=>{
+      const td=document.createElement("td");td.textContent=value||"";
+      if(pos===3||pos===4){td.className="review-current-cell";const valueEl=document.createElement("span");valueEl.className="review-current-value";valueEl.textContent=value||"—";td.replaceChildren(valueEl)}
+      tr.appendChild(td)
+    });
+    const STATUS_OPTIONS=["Closed","Pending on customer","Pending on COE"];
+    const WING_OPTIONS=["False Positive","True Positive - actioned by Teams","True Positive - NO Impact","True Positive Security Incident"];
+    for(const [f,t] of[["Status","dropdown"],["Wing","dropdown"],["Closedon","text"],["resolution_steps","textarea"]]){
+      const td=document.createElement("td");td.className=f==="Status"||f==="Wing"?"review-edit-cell":"";
+      if(t==="dropdown"){
+        const current=clean(r[f]);const opts=f==="Status"?STATUS_OPTIONS.slice():WING_OPTIONS.slice();
+        if(current&&!opts.some(v=>v.toLowerCase()===current.toLowerCase()))opts.unshift(current);
+        td.appendChild(createReviewDropdown(f,current,opts,r));
+      }else{
+        const i=document.createElement(t==="textarea"?"textarea":"input");
+        if(f==="Closedon"){
+          i.placeholder="Paste date & time, e.g. 25-9-2026 6:24:11 AM";i.value=r[f] instanceof Date&&!isNaN(r[f])?displayDate(r[f]):clean(r[f]);
+          i.onblur=()=>{const raw=clean(i.value);if(!raw){delete r.__updates[f];i.classList.remove("input-invalid");return}const d=parseITSMDate(raw);if(d){r.__updates[f]=d;i.value=displayDate(d);i.classList.remove("input-invalid")}else i.classList.add("input-invalid")};
+        }else{i.value=clean(r[f]);i.placeholder="Leave blank to keep existing";i.oninput=e=>{r.__updates[f]=e.target.value}}
+        td.appendChild(i)
+      }
+      tr.appendChild(td)
+    }
+    const actionTd=document.createElement("td");const remove=document.createElement("button");remove.type="button";remove.className="review-remove-btn";remove.textContent="Remove";
+    remove.onclick=()=>{closeReviewDropdowns();reviewRows.splice(index,1);renderReview();if(!reviewRows.length)el.reviewCount.textContent="No tickets require review"};
+    actionTd.appendChild(remove);tr.appendChild(actionTd);el.reviewBody.appendChild(tr)
+  })
+}function mergeReviewRow(r){const out={...r},original=r.__original||{},updates=r.__updates||{};for(const f of["Status","Wing","Closedon","resolution_steps"])out[f]=Object.prototype.hasOwnProperty.call(updates,f)&&clean(updates[f])!==""?updates[f]:original[f]??out[f];delete out.__original;delete out.__updates;return out}
 function recalculateDerivedFields(r){r.Type="SOC Alert";r.Classification=classify(r.subject);r.Organization=org(r.subject);return r}
 function validateProcessedRows(){for(const r of processedRows){if(r.Closedon!==""&&r.Closedon!=null&&!(r.Closedon instanceof Date)){const d=parseITSMDate(r.Closedon);if(!d)throw Error("Invalid Closedon date for ticket "+clean(r["Tickets#"]));r.Closedon=d}}return true}
 function finalize(){const map=new Map();processedRows.forEach(r=>map.set(clean(r["Tickets#"]),r));reviewRows.forEach(r=>{const merged=recalculateDerivedFields(mergeReviewRow(r)),id=clean(merged["Tickets#"]);if(id&&!map.has(id))map.set(id,merged)});processedRows=[...map.values()].filter(r=>r["Tickets#"]);validateProcessedRows();el.reviewPanel.classList.add("hidden");renderSummary();el.resultSection.classList.remove("hidden");el.fileName.textContent="Processed: "+processedRows.length+" final records for "+emailDate(processedRows[0]?.["Created on"]);el.dateSelectionStatus.textContent="Final output: "+processedRows.length+" records • Created review records included: "+reviewRows.length;el.resultSection.scrollIntoView({behavior:"smooth",block:"start"})}
