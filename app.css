@@ -61,7 +61,12 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .panel{overflow:hidden;margin:16px 0;border-color:#d9e1ec}
 .panel-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--line)}
 .panel-head h2{font-size:12px;letter-spacing:-.025em;margin:0}
-.review-count{font-size:12px;font-weight:800;color:var(--navy);background:#f0f4f9;border:1px solid #dce4ee;padding:7px 10px;border-radius:8px;white-space:nowrap}
+.review-panel .panel-head{min-height:72px;padding:12px 18px;background:linear-gradient(180deg,#ffffff 0%,#fbfcfe 100%)}
+.review-panel .panel-head>div:first-child{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;align-items:center;min-width:0}
+.review-panel .panel-head .eyebrow{grid-row:1 / span 2;align-self:center;font-size:10px;letter-spacing:.12em;padding:8px 10px;border:1px solid #dbe5f3;border-radius:8px;background:#f3f7fd;color:#58708f;white-space:nowrap}
+.review-panel .panel-head h2{font-size:14px;line-height:1.2;font-weight:800;letter-spacing:-.025em;margin:0;color:#0f172a}
+.review-panel .panel-head p{font-size:11px;line-height:1.4;margin:3px 0 0;color:#718096}
+.review-count{font-size:11px;font-weight:800;color:var(--navy);background:#eef4ff;border:1px solid #d6e3f7;padding:8px 11px;border-radius:9px;white-space:nowrap;box-shadow:0 1px 2px rgba(15,31,58,.03)}
 .review-scroll{overflow:auto;max-height:58vh}
 .review-scroll table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px}
 .review-scroll th{background:var(--navy);color:#fff;padding:9px 10px;border:1px solid #17345e;white-space:nowrap;font-size:12px;font-weight:700}
@@ -97,6 +102,6 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .data-scroll{max-height:58vh}
 .data-scroll table{width:max-content;min-width:100%;border-collapse:collapse;font-family:'Inter 18pt',Inter,Arial,sans-serif;font-size:12px}.data-scroll th{background:var(--navy);color:#fff;padding:8px 10px;border:1px solid #17345e;text-align:left;font-size:12px;font-weight:700;white-space:nowrap;height:34px;vertical-align:middle}.data-scroll td{padding:7px 9px;border:1px solid #d7dee8;text-align:left;white-space:nowrap;color:var(--ink);background:#fff;font-size:12px;line-height:1.35;vertical-align:top}.data-scroll tbody tr:hover td{background:#fbfcfe}.data-scroll td:nth-child(6){white-space:normal;min-width:360px;max-width:650px;line-height:1.4}.data-scroll input{font:inherit;border:1px solid #d8dfe9;border-radius:7px;padding:7px;width:100%;font-size:12px;box-sizing:border-box}.data-scroll input:focus{border-color:#78a2ee;box-shadow:0 0 0 3px rgba(37,99,235,.08);outline:none}
 .data-scroll input{border:1px solid #d8dfe9;border-radius:7px;padding:7px;width:100%;font-size:12px}
-@media(max-width:800px){.date-selection-status{grid-column:1}.shell{padding:18px 14px 32px}.topbar:after{display:none}.upload-card{grid-template-columns:1fr;padding:20px}.date-selection{grid-column:auto;grid-template-columns:1fr;padding-top:18px}.date-picker-area{grid-template-columns:1fr}.process-date-btn{width:100%}.date-picker-popover{left:0;right:auto;width:min(350px,calc(100vw - 42px))}.panel-head{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.review-actions{justify-content:flex-start}}
+@media(max-width:800px){.review-panel .panel-head>div:first-child{display:block}.review-panel .panel-head .eyebrow{display:inline-block;margin-bottom:4px}.review-panel .panel-head{min-height:0}.date-selection-status{grid-column:1}.shell{padding:18px 14px 32px}.topbar:after{display:none}.upload-card{grid-template-columns:1fr;padding:20px}.date-selection{grid-column:auto;grid-template-columns:1fr;padding-top:18px}.date-picker-area{grid-template-columns:1fr}.process-date-btn{width:100%}.date-picker-popover{left:0;right:auto;width:min(350px,calc(100vw - 42px))}.panel-head{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.review-actions{justify-content:flex-start}}
 @media(max-width:480px){.upload-card{padding:16px}.upload-copy h2{font-size:12px}.email-preview{padding:18px 14px}.review-scroll input{width:160px}.review-scroll textarea{width:270px}}
 .review-scroll input.input-invalid{border-color:#c97870;background:#fff7f6;box-shadow:0 0 0 2px rgba(180,35,24,.06)}
