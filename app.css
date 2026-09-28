@@ -77,11 +77,18 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .results{margin-top:16px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .table-wrap,.data-scroll{overflow:auto}
-.table-wrap table,.data-scroll table{width:100%;min-width:720px;border-collapse:collapse;font-size:12px}
-.table-wrap th,.data-scroll th{background:#1e3a8a;color:#fff;padding:11px 10px;border:0;border-bottom:1px solid #173a82;text-align:center;font-size:10px;font-weight:700;height:42px;vertical-align:middle}
-.table-wrap td,.data-scroll td{padding:10px 10px;border:0;border-bottom:1px solid #e2e8f0;text-align:center;white-space:nowrap;color:#334155;height:42px;vertical-align:middle}
-.table-wrap tbody tr:not(:last-child):hover td{background:#f8fafc}
-.table-wrap tbody tr:last-child td{font-weight:700;background:#f1f5f9;color:#0f172a;border-top:1px solid #cbd5e1;border-bottom:0;height:44px}
+.table-wrap{overflow:auto}
+.table-wrap table{width:100%;min-width:720px;border-collapse:collapse;font-family:Inter,Arial,sans-serif;font-size:10pt}
+.table-wrap th{background:#0b2a5b;color:#fff;padding:4px 8px;border:1px solid #202020;text-align:center;font-size:10pt;font-weight:700;white-space:nowrap;height:32px;vertical-align:middle}
+.table-wrap td{padding:4px 8px;border:1px solid #202020;text-align:center;white-space:nowrap;color:#111827;background:#fff;font-size:10pt;font-weight:400;height:30px;vertical-align:middle}
+.table-wrap tbody tr:not(:last-child):hover td{background:#fff}
+.table-wrap tbody tr:last-child td{font-weight:700;background:#0b2a5b;color:#fff;border:1px solid #202020;height:32px}
+.table-wrap th:first-child,.table-wrap td:first-child{width:26%}
+.table-wrap th:nth-child(2),.table-wrap td:nth-child(2){width:12%}
+.table-wrap th:nth-child(3),.table-wrap td:nth-child(3){width:20%}
+.table-wrap th:nth-child(4),.table-wrap td:nth-child(4){width:24%}
+.table-wrap th:nth-child(5),.table-wrap td:nth-child(5){width:18%}
+
 .email-preview{padding:20px 22px;background:#fff}
 .email-subject-preview{max-width:920px;margin:0 auto 14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#f8fafc;font-size:11px;font-weight:700}
 .email-preview-body{max-width:920px;margin:auto;font-size:12px;line-height:1.6}
