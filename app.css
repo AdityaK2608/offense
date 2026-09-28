@@ -68,8 +68,8 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 .review-scroll td{padding:8px 9px;border:1px solid #d7dee8;vertical-align:top;white-space:nowrap;background:#fff}
 .review-scroll tbody tr:hover td{background:#fbfcfe}
 .review-scroll td:nth-child(3){white-space:normal;min-width:320px;max-width:450px;line-height:1.45}
-.review-scroll input,.review-scroll textarea{width:180px;border:1px solid #d8dfe9;border-radius:7px;padding:7px 8px;font-size:12px;background:#fff;color:var(--ink);outline:none}
-.review-scroll input:focus,.review-scroll textarea:focus{border-color:#8da1be;box-shadow:0 0 0 3px rgba(11,42,91,.06)}
+.review-scroll input,.review-scroll textarea,.review-scroll select{width:180px;border:1px solid #d8dfe9;border-radius:8px;padding:7px 10px;font:inherit;font-size:12px;background:#fff;color:var(--ink);outline:none;min-height:38px}.review-scroll select{cursor:pointer;appearance:auto}.review-scroll select:hover{border-color:#aebcd0}.review-scroll select:focus,.review-scroll input:focus,.review-scroll textarea:focus{border-color:#78a2ee;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+
 .review-scroll textarea{width:350px;min-height:66px;resize:vertical}
 .review-remove-btn{border:1px solid #d5a6a1;background:#fff;color:var(--danger);border-radius:7px;padding:7px 9px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
 .review-remove-btn:hover{background:#fff4f2;border-color:#c97870}
