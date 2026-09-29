@@ -46,24 +46,23 @@ function parseITSMDate(v){
   return isNaN(d.getTime())||d.getFullYear()!==year||d.getMonth()!==month-1||d.getDate()!==day||d.getHours()!==hour||d.getMinutes()!==minute||d.getSeconds()!==second?null:d
 }
 function ordinal(n){return n%100>=11&&n%100<=13?n+"th":n+({1:"st",2:"nd",3:"rd"}[n%10]||"th")}function detectDateFormat(v){
-  const s=clean(v);if(!s||/^\\d+(?:\\.\\d+)?$/.test(s))return"dd-mm-yyyy hh:mm:ss";
-  const hasTime=/[ T]+\\d{1,2}:\\d{2}/.test(s),hasSec=/:[0-5]?\\d:[0-5]?\\d/.test(s),amp=/\\b(?:AM|PM)\\b/i.test(s);
-  const comma=hasTime&&/,/.test(s) ? ", " : " ";
+  const s=clean(v);if(!s||/^\d+(?:\.\d+)?$/.test(s))return"dd-mm-yyyy hh:mm:ss";
+  const hasTime=/[ T]+\d{1,2}:\d{2}/.test(s),hasSec=/:[0-5]?\d:[0-5]?\d/.test(s),amp=/\b(?:AM|PM)\b/i.test(s);
+  const comma=hasTime&&/,/.test(s)?", ":" ";
   const date=s.split(/[ T,]+/)[0];
   let dateFmt="dd-mm-yyyy";
-  if(/^\\d{4}[-\\/]\\d{1,2}[-\\/]\\d{1,2}$/.test(date)){const sep=date.includes("/")?"/":"-";const a=date.split(sep);dateFmt="yyyy"+sep+(a[1].length===2?"mm":"m")+sep+(a[2].length===2?"dd":"d")}
-  else if(/^[A-Za-z]{3,9}/.test(date)){const m=date.match(/^([A-Za-z]{3,9})\\s+(\\d{1,2})/);dateFmt=m?("mmmm d"+(m[2].length===2?"d":"")):"dd-mmm-yyyy"}
+  if(/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/.test(date)){const sep=date.includes("/")?"/":"-";const a=date.split(sep);dateFmt="yyyy"+sep+(a[1].length===2?"mm":"m")+sep+(a[2].length===2?"dd":"d")}
+  else if(/^[A-Za-z]{3,9}/.test(date)){const m=date.match(/^([A-Za-z]{3,9})\s+(\d{1,2})/);dateFmt=m?("mmmm "+(m[2].length===2?"dd":"d")+", yyyy"):"dd-mmm-yyyy"}
   else{const sep=date.includes("/")?"/":"-";const a=date.split(sep);dateFmt=(a[0].length===2?"dd":"d")+sep+(a[1].length===2?"mm":"m")+sep+"yyyy"}
   if(!hasTime)return dateFmt;
-  const tm=s.match(/(?:[ T]+|,\\s*)(\\d{1,2}):(\\d{2})(?::(\\d{2}))?/);if(!tm)return dateFmt;
-  const h=amp?(tm[1].length===2?"hh":"h"):(tm[1].length===2?"hh":"h");
-  return dateFmt+comma+h+":"+("mm")+(hasSec?":ss":"")+(amp?" AM/PM":"");
+  const tm=s.match(/(?:[ T]+|,\s*)(\d{1,2}):(\d{2})(?::(\d{2}))?/);if(!tm)return dateFmt;
+  return dateFmt+comma+(tm[1].length===2?"hh":"h")+":mm"+(hasSec?":ss":"")+(amp?" AM/PM":"");
 }
 let dateOutputFormat="dd-mm-yyyy hh:mm:ss";
 function displayDateWithFormat(v,fmt=dateOutputFormat){
   const d=dateVal(v);if(!(d instanceof Date)||isNaN(d))return clean(v);
-  const p={d:d.getDate(),dd:String(d.getDate()).padStart(2,"0"),m:d.getMonth()+1,mm:String(d.getMonth()+1).padStart(2,"0"),yyyy:d.getFullYear(),h:d.getHours()%12||12,hh:String(d.getHours()%12||12).padStart(2,"0"),H:d.getHours(),HH:String(d.getHours()).padStart(2,"0"),min:String(d.getMinutes()).padStart(2,"0"),ss:String(d.getSeconds()).padStart(2,"0"),amp:d.getHours()>=12?"PM":"AM"};
-  return fmt.replace(/yyyy|dd|mm|hh|ss|d|m|h|AM\\/PM/g,t=>({yyyy:p.yyyy,dd:p.dd,mm:p.mm,hh:p.hh,ss:p.ss,d:p.d,m:p.m,h:p.h,"AM/PM":p.amp})[t]??t);
+  const p={d:d.getDate(),dd:String(d.getDate()).padStart(2,"0"),m:d.getMonth()+1,mm:String(d.getMonth()+1).padStart(2,"0"),yyyy:d.getFullYear(),h:d.getHours()%12||12,hh:String(d.getHours()%12||12),ss:String(d.getSeconds()).padStart(2,"0"),amp:d.getHours()>=12?"PM":"AM",mmmm:["January","February","March","April","May","June","July","August","September","October","November","December"][d.getMonth()]};
+  return fmt.replace(/yyyy|mmmm|dd|mm|hh|ss|d|m|h|AM\/PM/g,t=>({yyyy:p.yyyy,mmmm:p.mmmm,dd:p.dd,mm:p.mm,hh:p.hh,ss:p.ss,d:p.d,m:p.m,h:p.h,"AM/PM":p.amp})[t]??t);
 }
 
 function emailDate(v){const p=parts(v);if(!p)return"";return ordinal(p.day)+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][p.month-1]+" "+p.year}
