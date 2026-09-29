@@ -23,7 +23,7 @@ function parts(v){
 }
 function key(v){const p=parts(v);return p?[p.year,String(p.month).padStart(2,"0"),String(p.day).padStart(2,"0")].join("-"):""}
 function detectDateFormat(v){
-  const s=clean(v);const fmt={dateSep:"-",dayPad:true,monthPad:true,yearFirst:false,timeSep:" ",hourPad:false,seconds:false,ampm:false,ampmLower:false,hasTime:false,monthName:""};
+  const s=clean(v);const fmt={dateSep:"-",dayPad:true,monthPad:true,yearFirst:false,timeSep:" ",hourPad:false,seconds:false,ampm:false,ampmLower:false,hasTime:false,monthName:"",monthFirst:false};
   if(!s||/^\d+(?:\.\d+)?$/.test(s))return fmt;
   fmt.hasTime=/[ T,]+\d{1,2}:\d{2}/.test(s);fmt.seconds=/:\d{2}:\d{2}/.test(s);
   const ap=s.match(/\b(AM|PM)\b/i);fmt.ampm=!!ap;fmt.ampmLower=!!ap&&ap[1]===ap[1].toLowerCase();
@@ -31,7 +31,7 @@ function detectDateFormat(v){
   const dp=s.split(/[ T,]+(?=\d)/)[0];
   const n=dp.match(/^(\d{1,4})([\/\-])(\d{1,2})\2(\d{1,4})$/);
   if(n){fmt.dateSep=n[2];fmt.yearFirst=n[1].length===4;if(fmt.yearFirst){fmt.monthPad=n[3].length===2;fmt.dayPad=n[4].length===2}else{fmt.dayPad=n[1].length===2;fmt.monthPad=n[3].length===2}}
-  else if(/^[A-Za-z]{3,9}/.test(dp)){const m=dp.match(/^([A-Za-z]{3,9})\s+(\d{1,2})\s*,?\s*(\d{4})$/);if(m){fmt.monthName=m[1];fmt.dayPad=m[2].length===2;fmt.dateSep=" ";}}
+  else if(/^[A-Za-z]{3,9}/.test(dp)){const m=dp.match(/^([A-Za-z]{3,9})\s+(\d{1,2})\s*,?\s*(\d{4})$/);if(m){fmt.monthName=m[1];fmt.dayPad=m[2].length===2;fmt.dateSep=" ";fmt.monthFirst=/^[A-Za-z]/.test(dp);}}
   const tm=s.match(/(?:[ T,]+)(\d{1,2}):(\d{2})(?::(\d{2}))?/);fmt.hourPad=!!tm&&tm[1].length===2;
   return fmt;
 }
@@ -41,7 +41,7 @@ function formatDateOutput(v,fmt=dateOutputFormat){
   const d=dateVal(v);if(!(d instanceof Date)||isNaN(d))return clean(v);
   const day=String(d.getDate()),month=String(d.getMonth()+1),year=String(d.getFullYear());
   let out;
-  if(fmt.monthName){const names=["January","February","March","April","May","June","July","August","September","October","November","December"];const name=fmt.monthName.length<=3?names[d.getMonth()].slice(0,3):names[d.getMonth()];out=(fmt.dayPad?day.padStart(2,"0"):day)+" "+name+" "+year}
+  if(fmt.monthName){const names=["January","February","March","April","May","June","July","August","September","October","November","December"];const name=fmt.monthName.length<=3?names[d.getMonth()].slice(0,3):names[d.getMonth()];out=fmt.monthFirst?name+" "+(fmt.dayPad?day.padStart(2,"0"):day)+", "+year:(fmt.dayPad?day.padStart(2,"0"):day)+" "+name+" "+year}
   else if(fmt.yearFirst)out=year+fmt.dateSep+(fmt.monthPad?month.padStart(2,"0"):month)+fmt.dateSep+(fmt.dayPad?day.padStart(2,"0"):day);
   else out=(fmt.dayPad?day.padStart(2,"0"):day)+fmt.dateSep+(fmt.monthPad?month.padStart(2,"0"):month)+fmt.dateSep+year;
   if(fmt.hasTime){let h=fmt.ampm?(d.getHours()%12||12):d.getHours(),hs=String(h);if(fmt.hourPad)hs=hs.padStart(2,"0");out+=fmt.timeSep+hs+":"+String(d.getMinutes()).padStart(2,"0");if(fmt.seconds)out+=":"+String(d.getSeconds()).padStart(2,"0");if(fmt.ampm)out+=" "+(fmt.ampmLower?(d.getHours()>=12?"pm":"am"):(d.getHours()>=12?"PM":"AM"))}
