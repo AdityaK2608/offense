@@ -11,33 +11,84 @@ function clean(v){return v==null?"":String(v).trim()}
 function val(r,c){const k=Object.keys(r||{}).find(h=>clean(h).toLowerCase()===c.toLowerCase());return k?clean(r[k]):""}
 function has(rows,c){return rows.length&&Object.keys(rows[0]).some(h=>clean(h).toLowerCase()===c.toLowerCase())}
 function dateVal(v){if(v instanceof Date&&!isNaN(v.getTime()))return v;const p=parts(v);if(!p)return clean(v);const d=new Date(p.year,p.month-1,p.day,p.hour||0,p.minute||0,p.second||0);return isNaN(d.getTime())?clean(v):d}function parts(v){if(v instanceof Date&&!isNaN(v.getTime()))return{day:v.getDate(),month:v.getMonth()+1,year:v.getFullYear(),hour:v.getHours(),minute:v.getMinutes(),second:v.getSeconds()};const s=clean(v);if(!s)return null;if(/^\d+(?:\.\d+)?$/.test(s)){const n=+s;if(n>0&&n<100000&&XLSX.SSF?.parse_date_code){const p=XLSX.SSF.parse_date_code(n);if(p?.y&&p?.m&&p?.d)return{day:p.d,month:p.m,year:p.y,hour:p.H||0,minute:p.M||0,second:Math.floor(p.S||0)}}return null}let m=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i),year,month,day,hour=0,minute=0,second=0;if(m){year=+m[1];month=+m[2];day=+m[3]}else{m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);if(!m)return null;const a=+m[1],b=+m[2];year=+m[3];if(a>12&&b<=12){day=a;month=b}else if(b>12&&a<=12){month=a;day=b}else{month=a;day=b}}if(m[4]!=null){hour=+m[4];minute=+m[5];second=+(m[6]||0);const ap=(m[7]||"").toUpperCase();if(ap){if(hour<1||hour>12)return null;if(hour===12)hour=0;if(ap==="PM")hour+=12}else if(hour>23)return null;if(minute>59||second>59)return null}const d=new Date(year,month-1,day,hour,minute,second);return isNaN(d.getTime())||d.getFullYear()!==year||d.getMonth()!==month-1||d.getDate()!==day||d.getHours()!==hour||d.getMinutes()!==minute||d.getSeconds()!==second?null:{day,month,year,hour,minute,second}}function key(v){const p=parts(v);return p?[p.year,String(p.month).padStart(2,"0"),String(p.day).padStart(2,"0")].join("-"):""}
-function displayDate(v){return displayDateWithFormat(v,dateOutputFormat)}
+function detectDateFormat(v){
+  const s=clean(v);
+  if(!s||/^\d+(?:\.\d+)?$/.test(s))return{dateSep:"-",dayPad:true,monthPad:true,yearFirst:false,timeSep:" ",comma:false,hourPad:false,seconds:true,ampm:false,ampmLower:false};
+  const hasTime=/[ T,]+\d{1,2}:\d{2}/.test(s);
+  const hasSec=/:\d{2}:\d{2}/.test(s);
+  const ampmMatch=s.match(/\b(AM|PM)\b/i);
+  const ampm=!!ampmMatch,ampmLower=ampm&&ampmMatch[1]===ampmMatch[1].toLowerCase();
+  const comma=hasTime&&/,\s*\d/.test(s);
+  const datePart=s.split(/[ T,]+(?=\d)/)[0];
+  let dateSep="-",dayPad=false,monthPad=false,yearFirst=false;
+  const numeric=datePart.match(/^(\d{1,4})([\/-])(\d{1,2})\2(\d{1,4})$/);
+  if(numeric){
+    dateSep=numeric[2];
+    yearFirst=numeric[1].length===4;
+    if(yearFirst){monthPad=numeric[3].length===2;dayPad=numeric[4].length===2}
+    else{dayPad=numeric[1].length===2;monthPad=numeric[3].length===2}
+  }else if(/^[A-Za-z]{3,9}/.test(datePart)){
+    dateSep=" ";dayPad=false;monthPad=false;yearFirst=false;
+  }
+  const hm=s.match(/(?:[ T,]+)(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  const hourPad=!!hm&&hm[1].length===2;
+  const timeSep=comma?", ":" ";
+  return{dateSep,dayPad,monthPad,yearFirst,timeSep,comma,hourPad,seconds:hasSec||!hasTime?hasSec:false,ampm,ampmLower};
+}
+let dateOutputFormat=detectDateFormat("");
+function formatDateOutput(v,fmt=dateOutputFormat){
+  const d=dateVal(v);if(!(d instanceof Date)||isNaN(d))return clean(v);
+  const day=String(d.getDate()),month=String(d.getMonth()+1),year=String(d.getFullYear());
+  const dd=fmt.dayPad?day.padStart(2,"0"):day,mm=fmt.monthPad?month.padStart(2,"0"):month;
+  let out;
+  if(fmt.yearFirst)out=year+fmt.dateSep+mm+fmt.dateSep+dd;
+  else if(/^[A-Za-z]{3,9}$/.test(fmt.monthName||""))out=day+" "+fmt.monthName+" "+year;
+  else out=dd+fmt.dateSep+mm+fmt.dateSep+year;
+  if(!fmt.hasTime)return out;
+  let h24=d.getHours(),h=fmt.ampm?(h24%12||12):h24;
+  let hs=String(h);if(fmt.hourPad)hs=hs.padStart(2,"0");
+  out+=fmt.timeSep+hs+":"+String(d.getMinutes()).padStart(2,"0");
+  if(fmt.seconds)out+=":"+String(d.getSeconds()).padStart(2,"0");
+  if(fmt.ampm)out+=" "+(fmt.ampmLower?(h24>=12?"pm":"am"):(h24>=12?"PM":"AM"));
+  return out;
+}
+function applyCreatedFormat(v){
+  const fmt=detectDateFormat(v);
+  const s=clean(v);
+  const monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  if(/^[A-Za-z]{3,9}/.test(s)){
+    fmt.monthName=monthNames[dateVal(v).getMonth()];
+  }
+  fmt.hasTime=/[ T,]+\d{1,2}:\d{2}/.test(s);
+  return fmt;
+}
+function displayDate(v){return formatDateOutput(v,dateOutputFormat)}
 function parseITSMDate(v){
   const s=clean(v);if(!s)return null;
   if(v instanceof Date&&!isNaN(v.getTime()))return new Date(v.getTime());
-  const raw=s.replace(/,/g," ").replace(/\\s+/g," ").trim();
-  const excel=/^\\d+(?:\\.\\d+)?$/.test(raw)?+raw:null;
+  const raw=s.replace(/,/g," ").replace(/\s+/g," ").trim();
+  const excel=/^\d+(?:\.\d+)?$/.test(raw)?+raw:null;
   if(excel!=null&&excel>0&&excel<100000&&XLSX.SSF?.parse_date_code){
     const p=XLSX.SSF.parse_date_code(excel);
     if(p?.y&&p?.m&&p?.d)return new Date(p.y,p.m-1,p.d,p.H||0,p.M||0,Math.floor(p.S||0));
   }
   const months={jan:1,january:1,feb:2,february:2,mar:3,march:3,apr:4,april:4,may:5,jun:6,june:6,jul:7,july:7,aug:8,august:8,sep:9,sept:9,september:9,oct:10,october:10,nov:11,november:11,dec:12,december:12};
-  let m=raw.match(/^(\\d{1,2})[\\/\\-](\\d{1,2})[\\/\\-](\\d{4})(?:[ T]+(\\d{1,2})(?::(\\d{2}))(?::(\\d{2}))?\\s*(AM|PM)?)?$/i);
+  let m=raw.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
   let day,month,year,hour=0,minute=0,second=0,ampm="";
   if(m){
     const a=+m[1],b=+m[2];year=+m[3];
     if(a>12&&b<=12){day=a;month=b}else if(b>12&&a<=12){month=a;day=b}else{day=a;month=b}
     hour=+(m[4]||0);minute=+(m[5]||0);second=+(m[6]||0);ampm=(m[7]||"").toUpperCase();
   }else{
-    m=raw.match(/^(\\d{4})[\\/\\-](\\d{1,2})[\\/\\-](\\d{1,2})(?:[ T]+(\\d{1,2})(?::(\\d{2}))(?::(\\d{2}))?\\s*(AM|PM)?)?$/i);
+    m=raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
     if(m){year=+m[1];month=+m[2];day=+m[3];hour=+(m[4]||0);minute=+(m[5]||0);second=+(m[6]||0);ampm=(m[7]||"").toUpperCase();}
   }
   if(!year){
-    m=raw.match(/^(\\d{1,2})\\s+([A-Za-z]{3,9})\\s+(\\d{4})(?:[ T]+(\\d{1,2})(?::(\\d{2}))(?::(\\d{2}))?\\s*(AM|PM)?)?$/i);
+    m=raw.match(/^(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{4})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
     if(m){day=+m[1];month=months[m[2].toLowerCase()];year=+m[3];hour=+(m[4]||0);minute=+(m[5]||0);second=+(m[6]||0);ampm=(m[7]||"").toUpperCase();}
   }
   if(!year){
-    m=raw.match(/^([A-Za-z]{3,9})\\s+(\\d{1,2}),?\\s+(\\d{4})(?:[ T]+(\\d{1,2})(?::(\\d{2}))(?::(\\d{2}))?\\s*(AM|PM)?)?$/i);
+    m=raw.match(/^([A-Za-z]{3,9})\s+(\d{1,2}),?\s+(\d{4})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
     if(m){month=months[m[1].toLowerCase()];day=+m[2];year=+m[3];hour=+(m[4]||0);minute=+(m[5]||0);second=+(m[6]||0);ampm=(m[7]||"").toUpperCase();}
   }
   if(!year||!month||!day||minute>59||second>59)return null;
@@ -76,7 +127,7 @@ function output(r){const s=val(r,"subject");return{"Tickets#":val(r,"Tickets#"),
 function valid(rows,name){if(!rows.length)throw Error(name+" file is empty.");for(const c of["Tickets#","Created on","subject","Type"])if(!has(rows,c))throw Error(name+' file is missing "'+c+'".')}
 async function read(file){const wb=XLSX.read(await file.arrayBuffer(),{type:"array",cellDates:false,cellNF:true,cellText:true});const sh=wb.Sheets[wb.SheetNames[0]];return{file,rows:XLSX.utils.sheet_to_json(sh,{defval:"",raw:true})}}
 function reset(){createdRows=[];closedRows=[];processedRows=[];reviewRows=[];availableDates=[];selectedDate="";el.reportDate.value="";el.datePickerValue.textContent="Select a date";el.processBtn.disabled=true;el.dateSelection.classList.add("hidden");el.reviewPanel.classList.add("hidden");el.resultSection.classList.add("hidden");el.dataPanel.classList.add("hidden")}
-async function handleFiles(files){if(!files.length)return;if(files.length>2)return alert("Please upload at most 2 Excel files.");if(typeof XLSX==="undefined")return alert("Excel engine is not loaded. Please refresh.");reset();el.fileName.textContent="Reading workbook"+(files.length===1?"":"s")+"…";try{const a=await Promise.all([...files].map(read));let c=a.find(x=>!has(x.rows,"resolution_steps")),d=a.find(x=>has(x.rows,"resolution_steps"));if(files.length===2&&(!c||!d))throw Error('Upload one Created file without "resolution_steps" and one Closed file containing "resolution_steps".');if(files.length===1&&!c&&!d)throw Error('The workbook must contain a "resolution_steps" column to be used as the Closed dashboard, or omit it for the Created dashboard.');if(c)valid(c.rows,"Created");if(d)valid(d.rows,"Closed");createdRows=c?c.rows:[];closedRows=d?d.rows:[];dateOutputFormat=detectDateFormat(c?.rows?.[0] ? val(c.rows[0],"Created on") : "");const dateRows=createdRows.length?createdRows:closedRows;availableDates=[...new Set(dateRows.map(r=>key(val(r,"Created on"))).filter(Boolean))].sort();if(!availableDates.length)throw Error('No valid "Created on" dates found in the uploaded file.');el.fileName.textContent=files.length===1?"Ready: "+a[0].file.name:"Ready: "+c.file.name+" + "+d.file.name;el.dateSelectionStatus.textContent=(createdRows.length?"Created: "+createdRows.length.toLocaleString()+" records":"")+" "+(createdRows.length&&closedRows.length?"• ":"")+(closedRows.length?"Closed: "+closedRows.length.toLocaleString()+" records":"");el.dateSelection.classList.remove("hidden");calendar();}catch(e){reset();el.fileName.textContent="Processing failed";alert(e.message||e)}}
+async function handleFiles(files){if(!files.length)return;if(files.length>2)return alert("Please upload at most 2 Excel files.");if(typeof XLSX==="undefined")return alert("Excel engine is not loaded. Please refresh.");reset();el.fileName.textContent="Reading workbook"+(files.length===1?"":"s")+"…";try{const a=await Promise.all([...files].map(read));let c=a.find(x=>!has(x.rows,"resolution_steps")),d=a.find(x=>has(x.rows,"resolution_steps"));if(files.length===2&&(!c||!d))throw Error('Upload one Created file without "resolution_steps" and one Closed file containing "resolution_steps".');if(files.length===1&&!c&&!d)throw Error('The workbook must contain a "resolution_steps" column to be used as the Closed dashboard, or omit it for the Created dashboard.');if(c)valid(c.rows,"Created");if(d)valid(d.rows,"Closed");createdRows=c?c.rows:[];closedRows=d?d.rows:[];dateOutputFormat=applyCreatedFormat(c?.rows?.[0] ? val(c.rows[0],"Created on") : "");const dateRows=createdRows.length?createdRows:closedRows;availableDates=[...new Set(dateRows.map(r=>key(val(r,"Created on"))).filter(Boolean))].sort();if(!availableDates.length)throw Error('No valid "Created on" dates found in the uploaded file.');el.fileName.textContent=files.length===1?"Ready: "+a[0].file.name:"Ready: "+c.file.name+" + "+d.file.name;el.dateSelectionStatus.textContent=(createdRows.length?"Created: "+createdRows.length.toLocaleString()+" records":"")+" "+(createdRows.length&&closedRows.length?"• ":"")+(closedRows.length?"Closed: "+closedRows.length.toLocaleString()+" records":"");el.dateSelection.classList.remove("hidden");calendar();}catch(e){reset();el.fileName.textContent="Processing failed";alert(e.message||e)}}
 function calendar(){el.calendarHint.textContent=availableDates.length+" date"+(availableDates.length===1?"":"s")+" available";el.calendarGrid.innerHTML="";[...availableDates].sort().reverse().forEach(k=>{const [y,m,d]=k.split("-").map(Number),b=document.createElement("button");b.type="button";b.className="date-option"+(k===el.reportDate.value?" is-selected":"");b.setAttribute("role","option");b.setAttribute("aria-selected",k===el.reportDate.value?"true":"false");const main=document.createElement("span");main.className="date-option-main";main.textContent=new Date(y,m-1,d).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});const sub=document.createElement("span");sub.className="date-option-sub";sub.textContent=new Date(y,m-1,d).toLocaleDateString("en-GB",{weekday:"long"});b.append(main,sub);b.onclick=()=>{el.reportDate.value=k;el.datePickerValue.textContent=new Date(y,m-1,d).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});el.processBtn.disabled=false;closeCal();calendar()};el.calendarGrid.appendChild(b)})}
 function closeCal(){el.datePickerPopover.classList.add("hidden");el.datePickerButton.setAttribute("aria-expanded","false")}
 function eligibleCreated(d){return createdRows.filter(r=>key(val(r,"Created on"))===d).filter(nab).filter(soc).filter(r=>!excluded(r))}
@@ -157,7 +208,7 @@ function renderEmail(){if(!processedRows.length)return;const d=emailDate(process
 async function copySubject(){if(!processedRows.length)return;await copy("NABFID Daily Offense Report || "+emailDate(processedRows[0]["Created on"]),"");copied(el.copySubjectBtn,"Subject Copied ✓")}
 async function copyEmail(){renderEmail();const b=el.emailPreview.querySelector(".email-preview-body");if(!b)return;const t=[...b.querySelectorAll("p,tr")].map(x=>x.textContent.trim()).join("\n");await copy(t,b.outerHTML);copied(el.copyEmailBtn,"Email Copied ✓")}
 function borders(){const s={style:"thin",color:{rgb:"202020"}};return{top:s,bottom:s,left:s,right:s}}
-function styleSheet(sh,total=-1){const rg=XLSX.utils.decode_range(sh["!ref"]);for(let r=rg.s.r;r<=rg.e.r;r++)for(let c=rg.s.c;c<=rg.e.c;c++){const x=sh[XLSX.utils.encode_cell({r,c})];if(!x)continue;const isDateColumn=sh[XLSX.utils.encode_cell({r:0,c})]?.v==="Created on"||sh[XLSX.utils.encode_cell({r:0,c})]?.v==="Closedon";x.s=r===0?{font:{name:"Inter 18pt",sz:10,bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"0B2A5B"}},alignment:{horizontal:"center",vertical:"center",wrapText:false},border:borders()}:{font:{name:"Inter 18pt",sz:10,color:{rgb:r===total?"FFFFFF":"374151"}},fill:{fgColor:{rgb:r===total?"0B2A5B":"FFFFFF"}},alignment:{horizontal:"center",vertical:"center",wrapText:false},border:borders(),...(isDateColumn&&x.v instanceof Date?{numFmt:dateOutputFormat}:{})}}}
+function styleSheet(sh,total=-1){const rg=XLSX.utils.decode_range(sh["!ref"]);for(let r=rg.s.r;r<=rg.e.r;r++)for(let c=rg.s.c;c<=rg.e.c;c++){const x=sh[XLSX.utils.encode_cell({r,c})];if(!x)continue;const isDateColumn=sh[XLSX.utils.encode_cell({r:0,c})]?.v==="Created on"||sh[XLSX.utils.encode_cell({r:0,c})]?.v==="Closedon";x.s=r===0?{font:{name:"Inter 18pt",sz:10,bold:true,color:{rgb:"FFFFFF"}},fill:{fgColor:{rgb:"0B2A5B"}},alignment:{horizontal:"center",vertical:"center",wrapText:false},border:borders()}:{font:{name:"Inter 18pt",sz:10,color:{rgb:r===total?"FFFFFF":"374151"}},fill:{fgColor:{rgb:r===total?"0B2A5B":"FFFFFF"}},alignment:{horizontal:"center",vertical:"center",wrapText:false},border:borders(),...(isDateColumn&&x.v instanceof Date?{numFmt:dateOutputFormat.yearFirst?"yyyy"+dateOutputFormat.dateSep+(dateOutputFormat.monthPad?"mm":"m")+dateOutputFormat.dateSep+(dateOutputFormat.dayPad?"dd":"d"):(dateOutputFormat.dateSep===" "&&dateOutputFormat.monthName?"d mmmm yyyy":(dateOutputFormat.dayPad?"dd":"d")+dateOutputFormat.dateSep+(dateOutputFormat.monthPad?"mm":"m")+dateOutputFormat.dateSep+"yyyy")+(dateOutputFormat.hasTime?(dateOutputFormat.timeSep+(dateOutputFormat.hourPad?"hh":"h")+":mm"+(dateOutputFormat.seconds?":ss":"")+(dateOutputFormat.ampm?(dateOutputFormat.ampmLower?" am/pm":" AM/PM"):"")):"")}:{})}}}
 function download(){if(!processedRows.length)return;const wb=XLSX.utils.book_new(),s=XLSX.utils.json_to_sheet(processedRows);for(const col of["B","J"])for(let r=2;r<=processedRows.length+1;r++){const c=s[col+r];if(c&&c.v instanceof Date)c.z="dd-mm-yyyy hh:mm:ss"}s["!freeze"]={xSplit:0,ySplit:1};s["!autofilter"]={ref:s["!ref"]};s["!cols"]=OUT.map(h=>({wch:({subject:42,Organization:38,resolution_steps:55,"Tickets#":16,"Created on":20,"Closedon":20,Wing:20}[h]||18)}));styleSheet(s);XLSX.utils.book_append_sheet(wb,s,"Offenses");const m=summarize(processedRows),rows=[SUMMARY],tot=[0,0,0,0];[...m.keys()].sort().forEach(c=>{const x=m.get(c);rows.push([c,x.Closed,x["Pending on COE"],x["Pending on customer"],x.total]);tot[0]+=x.Closed;tot[1]+=x["Pending on COE"];tot[2]+=x["Pending on customer"];tot[3]+=x.total});rows.push(["Grand Total",...tot]);const ss=XLSX.utils.aoa_to_sheet(rows);ss["!cols"]=[{wch:30},{wch:14},{wch:20},{wch:24},{wch:16}];styleSheet(ss,rows.length-1);XLSX.utils.book_append_sheet(wb,ss,"Classification");const p=parts(processedRows[0]["Created on"]),name=p?"NaBFID Offenses "+ordinal(p.day)+" "+["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"][p.month-1]+".xlsx":"NaBFID Offenses.xlsx";const blob=new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),a=document.createElement("a"),u=URL.createObjectURL(blob);a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
 function bind(){document.addEventListener("click",e=>{if(!e.target.closest(".review-dropdown"))closeReviewDropdowns()});el.fileInput.onchange=e=>handleFiles(e.target.files);el.dropzone.ondragover=e=>{e.preventDefault();el.dropzone.classList.add("drop-active")};el.dropzone.ondragleave=()=>el.dropzone.classList.remove("drop-active");el.dropzone.ondrop=e=>{e.preventDefault();el.dropzone.classList.remove("drop-active");handleFiles(e.dataTransfer.files)};el.datePickerButton.onclick=()=>{if(el.datePickerPopover.classList.contains("hidden")){el.datePickerPopover.classList.remove("hidden");el.datePickerButton.setAttribute("aria-expanded","true");calendar()}else closeCal()};document.addEventListener("click",e=>{if(!el.datePickerPopover.contains(e.target)&&!el.datePickerButton.contains(e.target))closeCal()});el.processBtn.onclick=processDate;el.continueBtn.onclick=finalize;el.cancelReviewBtn.onclick=()=>el.reviewPanel.classList.add("hidden");el.previewBtn.onclick=()=>{renderData(false);el.dataPanel.scrollIntoView({behavior:"smooth"})};el.editBtn.onclick=()=>{renderData(true);el.dataPanel.scrollIntoView({behavior:"smooth"})};el.copyTableBtn.onclick=copySummary;el.downloadBtn.onclick=download;el.copySubjectBtn.onclick=copySubject;el.copyEmailBtn.onclick=copyEmail;el.saveBtn.onclick=()=>{try{processedRows=processedRows.map(r=>recalculateDerivedFields(r));validateProcessedRows();renderSummary();renderData(true)}catch(e){alert(e.message||e)}};el.closePanelBtn.onclick=()=>el.dataPanel.classList.add("hidden")}
 bind();
