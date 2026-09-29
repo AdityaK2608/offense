@@ -105,3 +105,17 @@ button{transition:background .16s ease,border-color .16s ease,box-shadow .16s ea
 @media(max-width:800px){.review-panel .panel-head>div:first-child{display:flex;flex-wrap:wrap}.review-panel .panel-head .eyebrow{display:inline-block;margin-bottom:0}.review-panel .panel-head{min-height:0}.date-selection-status{grid-column:1}.shell{padding:18px 14px 32px}.topbar:after{display:none}.upload-card{grid-template-columns:1fr;padding:20px}.date-selection{grid-column:auto;grid-template-columns:1fr;padding-top:18px}.date-picker-area{grid-template-columns:1fr}.process-date-btn{width:100%}.date-picker-popover{left:0;right:auto;width:min(350px,calc(100vw - 42px))}.panel-head{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}.review-actions{justify-content:flex-start}}
 @media(max-width:480px){.upload-card{padding:16px}.upload-copy h2{font-size:12px}.email-preview{padding:18px 14px}.review-scroll input{width:160px}.review-scroll textarea{width:270px}}
 .review-scroll input.input-invalid{border-color:#c97870;background:#fff7f6;box-shadow:0 0 0 2px rgba(180,35,24,.06)}
+/* V4 UI polish */
+.primary-btn.is-busy{opacity:.78;cursor:wait;pointer-events:none}
+.button-spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;display:inline-block;animation:buttonSpin .7s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes buttonSpin{to{transform:rotate(360deg)}}
+.review-current-cell{background:#f7f9fc!important;color:#667085!important}
+.review-edit-cell{background:#fdfefe!important}
+.review-scroll tbody tr:hover td{background:#f8fbff}
+.review-scroll td:has(.review-dropdown),.review-scroll td:has(.review-resolution-input),.review-scroll td:has(.review-closedon-input){transition:background .15s ease,box-shadow .15s ease}
+.review-scroll td:has(.review-resolution-input:focus),.review-scroll td:has(.review-closedon-input:focus){background:#f7fbff!important;box-shadow:inset 0 0 0 1px #9bbcf3}
+.review-resolution-input.review-required:not(:focus):placeholder-shown,.review-closedon-input:disabled{background:#f4f6f8}
+.review-resolution-input.review-required.input-invalid,.review-closedon-input.input-invalid{border-color:#c97870!important;background:#fff7f6!important}
+.app-toast{position:fixed;right:24px;bottom:24px;z-index:1000;background:#0b2a5b;color:#fff;padding:11px 15px;border-radius:9px;box-shadow:0 10px 30px rgba(15,23,42,.18);font-size:12px;font-weight:700;opacity:0;transform:translateY(8px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}
+.app-toast.is-visible{opacity:1;transform:translateY(0)}
+@media(max-width:800px){.app-toast{right:14px;bottom:14px;left:14px;text-align:center}}
