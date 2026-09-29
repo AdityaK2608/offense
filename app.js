@@ -84,7 +84,8 @@ function displayDate(v){
   return out;
 }
 
-function ordinal(n){return n%100>=11&&n%100<=13?n+"th":n+({1:"st",2:"nd",3:"rd"}[n%10]||"th")}\nfunction emailDate(v){const p=parts(v);if(!p)return"";return ordinal(p.day)+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][p.month-1]+" "+p.year}
+function ordinal(n){return n%100>=11&&n%100<=13?n+"th":n+({1:"st",2:"nd",3:"rd"}[n%10]||"th")}
+function emailDate(v){const p=parts(v);if(!p)return"";return ordinal(p.day)+" "+["January","February","March","April","May","June","July","August","September","October","November","December"][p.month-1]+" "+p.year}
 function classify(s){const m=clean(s).match(/Domain:\s*([^|]*)/i);return m?clean(m[1])||"NABFID DC":"NABFID DC"}
 function org(s){return /KPMG/i.test(clean(s))?ORG.kpmg:ORG.default}
 function nab(r){return /nabfid/i.test(val(r,"subject"))||/nabfid/i.test(val(r,"Organization"))}
