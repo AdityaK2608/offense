@@ -3,7 +3,7 @@
 const ORG={kpmg:"KPMG Assurance and Consulting Services LLP",default:"Edgeverve Systems Limited- NaBFID"};
 const OUT=["Tickets#","Created on","Department","Prioritytitle","Type","subject","Classification","Organization","Wing","Closedon","resolution_steps","Status"];
 const SUMMARY=["Client","Closed","Pending on COE","Pending on Customer","Grand Total"];
-const EXCLUDED=[/not\s+reporting/i,/devices\s+not\s+working/i,/devices\s+not\s+reporting/i];
+const EXCLUDED=[/not\s+reporting/i,/devices\s+not\s+working/i,/devices\s+not\s+reporting/i,/PIM\s+Bypass/i];
 const $=id=>document.getElementById(id);
 let createdRows=[],closedRows=[],processedRows=[],reviewRows=[],availableDates=[],selectedDate="";
 const el={fileInput:$("fileInput"),dropzone:$("dropzone"),fileName:$("fileName"),dateSelection:$("dateSelection"),reportDate:$("reportDate"),datePickerButton:$("datePickerButton"),datePickerValue:$("datePickerValue"),datePickerPopover:$("datePickerPopover"),calendarHint:$("calendarHint"),calendarGrid:$("calendarGrid"),processBtn:$("processBtn"),dateSelectionStatus:$("dateSelectionStatus"),reviewPanel:$("reviewPanel"),reviewBody:$("reviewBody"),reviewCount:$("reviewCount"),continueBtn:$("continueBtn"),cancelReviewBtn:$("cancelReviewBtn"),resultSection:$("resultSection"),previewBtn:$("previewBtn"),editBtn:$("editBtn"),copyTableBtn:$("copyTableBtn"),downloadBtn:$("downloadBtn"),copyEmailBtn:$("copyEmailBtn"),copySubjectBtn:$("copySubjectBtn"),emailPreview:$("emailPreview"),dataPanel:$("dataPanel"),dataTitle:$("dataTitle"),dataSubtitle:$("dataSubtitle"),dataHead:$("dataHead"),dataBody:$("dataBody"),saveBtn:$("saveBtn"),closePanelBtn:$("closePanelBtn")};
@@ -90,7 +90,7 @@ function classify(s){const m=clean(s).match(/Domain:\s*([^|]*)/i);return m?clean
 function org(s){return /KPMG/i.test(clean(s))?ORG.kpmg:ORG.default}
 function nab(r){return /nabfid/i.test(val(r,"subject"))||/nabfid/i.test(val(r,"Organization"))}
 function soc(r){return val(r,"Type").toLowerCase()==="soc alert"}
-function excluded(r){const s=val(r,"subject");return s&&EXCLUDED.some(p=>p.test(s))}
+function excluded(r){const s=val(r,"subject"),rule=val(r,"RuleName");return EXCLUDED.some(p=>p.test(s)||p.test(rule))}
 function status(r){return clean(val(r,"Status")).replace(/\s+/g," ").toLowerCase()}
 function output(r){const s=val(r,"subject");return{"Tickets#":val(r,"Tickets#"),"Created on":dateVal(val(r,"Created on")),"Department":val(r,"Department"),"Prioritytitle":val(r,"Prioritytitle"),"Type":"SOC Alert",subject:s,"Classification":classify(s),"Organization":org(s),"Wing":val(r,"Wingname"),"Closedon":dateVal(val(r,"Closedon")),"resolution_steps":val(r,"resolution_steps"),"Status":val(r,"Status")}}
 function valid(rows,name){if(!rows.length)throw Error(name+" file is empty.");for(const c of["Tickets#","Created on","subject","Type"])if(!has(rows,c))throw Error(name+' file is missing "'+c+'".')}
